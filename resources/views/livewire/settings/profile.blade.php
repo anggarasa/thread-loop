@@ -27,14 +27,15 @@
                             </button>
                         </flux:modal.trigger>
                         @if(auth()->user()->profile_url)
-                        <button type="button"
-                                onclick="deleteProfileImage()"
-                                class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition-colors duration-200"
-                                title="Delete profile picture">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                        </button>
+                        <flux:modal.trigger name="delete-profile-image">
+                            <button type="button"
+                                    class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition-colors duration-200"
+                                    title="Delete profile picture">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </flux:modal.trigger>
                         @endif
                     </div>
                 </div>
@@ -132,6 +133,35 @@
                         Save
                     </flux:button>
                 </div>
+            </div>
+        </div>
+    </flux:modal>
+
+    <!-- Delete Profile Image Modal -->
+    <flux:modal name="delete-profile-image" class="min-w-[22rem]" :closable="false" :dismissible="false">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Delete profile picture?</flux:heading>
+
+                <flux:text class="mt-2">
+                    <p>You're about to delete your profile picture.</p>
+                    <p>This action cannot be reversed.</p>
+                </flux:text>
+            </div>
+
+            <!-- Error Message -->
+            <div id="deleteErrorMessage" class="text-red-600 text-sm hidden"></div>
+
+            <div class="flex gap-2">
+                <flux:spacer />
+
+                <flux:modal.close>
+                    <flux:button id="cancelDeleteProfileImage" variant="ghost">Cancel</flux:button>
+                </flux:modal.close>
+
+                <flux:button id="confirmDeleteProfileImage" onclick="confirmDeleteProfileImage()" variant="danger">
+                    Delete picture
+                </flux:button>
             </div>
         </div>
     </flux:modal>
@@ -314,17 +344,25 @@
 
 
         // Delete profile image function
-        function deleteProfileImage() {
-            if (!confirm('Are you sure you want to delete your profile picture?')) {
-                return;
-            }
-
+        function confirmDeleteProfileImage() {
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="csrf-token"]');
             if (!csrfToken) {
-                alert('CSRF token not found. Please refresh the page and try again.');
+                showDeleteError('CSRF token not found. Please refresh the page and try again.');
                 return;
             }
+
+            // Show loading state and disable buttons
+            const confirmBtn = document.getElementById('confirmDeleteProfileImage');
+            const cancelBtn = document.getElementById('cancelDeleteProfileImage');
+            const originalText = confirmBtn.textContent;
+
+            confirmBtn.textContent = 'Deleting...';
+            confirmBtn.disabled = true;
+            cancelBtn.disabled = true;
+
+            // Hide any previous error messages
+            document.getElementById('deleteErrorMessage').classList.add('hidden');
 
             fetch('{{ route("profile.delete-image") }}', {
                 method: 'DELETE',
@@ -341,16 +379,29 @@
             })
             .then(data => {
                 if (data.success) {
+                    // Close the modal first
+                    Flux.modal('delete-profile-image').close();
                     // Reload the page to show the default avatar
                     window.location.reload();
                 } else {
-                    alert(data.message || 'Failed to delete profile image');
+                    showDeleteError(data.message || 'Failed to delete profile image');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while deleting the profile image. Please try again.');
+                showDeleteError('An error occurred while deleting the profile image. Please try again.');
+            })
+            .finally(() => {
+                // Re-enable buttons
+                confirmBtn.textContent = originalText;
+                confirmBtn.disabled = false;
+                cancelBtn.disabled = false;
             });
+        }
+
+        function showDeleteError(message) {
+            document.getElementById('deleteErrorMessage').textContent = message;
+            document.getElementById('deleteErrorMessage').classList.remove('hidden');
         }
     </script>
 </section>
