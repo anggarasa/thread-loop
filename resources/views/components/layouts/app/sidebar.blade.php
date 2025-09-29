@@ -12,8 +12,18 @@
             </a>
 
             <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Platform')" class="grid">
+                <flux:navlist.group class="grid">
+                    <!-- Home -->
                     <flux:navlist.item icon="home" :href="route('homePage')" :current="request()->routeIs('homePage')" wire:navigate>{{ __('Home') }}</flux:navlist.item>
+
+                    <!-- Search -->
+                    <flux:navlist.item icon="magnifying-glass" :href="route('homePage')" :current="request()->routeIs('homePage')" wire:navigate class="mt-3">{{ __('Search') }}</flux:navlist.item>
+
+                    <!-- Post -->
+                    <flux:navlist.item icon="pencil" :href="route('homePage')" :current="request()->routeIs('homePage')" wire:navigate class="mt-3">{{ __('Post') }}</flux:navlist.item>
+
+                    <!-- Notification -->
+                    <flux:navlist.item icon="bell" :href="route('homePage')" :current="request()->routeIs('homePage')" wire:navigate class="mt-3">{{ __('Notification') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
