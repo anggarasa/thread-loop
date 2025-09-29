@@ -10,6 +10,7 @@ use Livewire\Component;
 
 class Profile extends Component
 {
+
     public string $name = '';
 
     public string $username = '';
@@ -31,6 +32,7 @@ class Profile extends Component
      */
     public function updateProfileInformation(): void
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $validated = $this->validate([
@@ -48,6 +50,7 @@ class Profile extends Component
             ],
         ]);
 
+        // Update user information
         $user->fill($validated);
 
         if ($user->isDirty('email')) {
@@ -64,6 +67,7 @@ class Profile extends Component
      */
     public function resendVerificationNotification(): void
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if ($user->hasVerifiedEmail()) {

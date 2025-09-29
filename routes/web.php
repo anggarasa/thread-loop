@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -21,6 +22,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/profile', Profile::class)->name('settings.profile');
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+
+    // Profile image upload route
+    Route::post('profile/upload-image', [ProfileController::class, 'uploadProfileImage'])->name('profile.upload-image');
 
     Route::get('settings/two-factor', TwoFactor::class)
         ->middleware(
