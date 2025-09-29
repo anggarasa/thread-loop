@@ -19,7 +19,7 @@
                     <div class="absolute -bottom-2 -right-2 flex space-x-1">
                         <flux:modal.trigger name="edit-profile-image">
                             <button type="button"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg transition-colors duration-200"
+                                    class="bg-neutral-800 hover:bg-neutral-600 text-white rounded-full p-2 shadow-lg transition-colors duration-200"
                                     title="Change profile picture">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -145,9 +145,6 @@
         }
 
         function closeProfileImageModal() {
-            if (isUploading) {
-                return; // Prevent closing during upload
-            }
             // Use Flux modal close method
             Flux.modal('edit-profile-image').close()
             resetModal();
@@ -162,25 +159,35 @@
             document.getElementById('saveProfileImage').disabled = true;
             document.getElementById('cancelProfileImage').disabled = false;
             document.getElementById('profileImageInput').value = '';
+
+            // Reset drag & drop area
+            const dropArea = document.getElementById('dropArea');
+            dropArea.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
         }
 
         // Drag and drop functionality
         const dropArea = document.getElementById('dropArea');
         const fileInput = document.getElementById('profileImageInput');
 
-        dropArea.addEventListener('click', () => fileInput.click());
+        dropArea.addEventListener('click', () => {
+            if (isUploading) return;
+            fileInput.click();
+        });
 
         dropArea.addEventListener('dragover', (e) => {
+            if (isUploading) return;
             e.preventDefault();
             dropArea.classList.add('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900');
         });
 
         dropArea.addEventListener('dragleave', (e) => {
+            if (isUploading) return;
             e.preventDefault();
             dropArea.classList.remove('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900');
         });
 
         dropArea.addEventListener('drop', (e) => {
+            if (isUploading) return;
             e.preventDefault();
             dropArea.classList.remove('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900');
 
@@ -191,6 +198,7 @@
         });
 
         fileInput.addEventListener('change', (e) => {
+            if (isUploading) return;
             if (e.target.files.length > 0) {
                 handleFileSelect(e.target.files[0]);
             }
@@ -241,11 +249,15 @@
             // Show loading state and disable buttons
             const saveBtn = document.getElementById('saveProfileImage');
             const cancelBtn = document.getElementById('cancelProfileImage');
+            const dropArea = document.getElementById('dropArea');
             const originalText = saveBtn.textContent;
 
             saveBtn.textContent = 'Uploading...';
             saveBtn.disabled = true;
             cancelBtn.disabled = true;
+
+            // Disable drag & drop area
+            dropArea.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
 
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="csrf-token"]');
@@ -294,6 +306,9 @@
                 saveBtn.textContent = originalText;
                 saveBtn.disabled = false;
                 cancelBtn.disabled = false;
+
+                // Re-enable drag & drop area
+                dropArea.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
             });
         }
 
