@@ -23,8 +23,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 
-    // Profile image upload route
+    // Profile image routes
     Route::post('profile/upload-image', [ProfileController::class, 'uploadProfileImage'])->name('profile.upload-image');
+    Route::delete('profile/delete-image', [ProfileController::class, 'deleteProfileImage'])->name('profile.delete-image');
 
     Route::get('settings/two-factor', TwoFactor::class)
         ->middleware(

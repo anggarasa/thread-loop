@@ -16,13 +16,26 @@
                             </svg>
                         </div>
                     @endif
-                    <button type="button"
-                            onclick="openProfileImageModal()"
-                            class="absolute -bottom-2 -right-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg transition-colors duration-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                        </svg>
-                    </button>
+                    <div class="absolute -bottom-2 -right-2 flex space-x-1">
+                        <button type="button"
+                                onclick="openProfileImageModal()"
+                                class="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg transition-colors duration-200"
+                                title="Change profile picture">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                            </svg>
+                        </button>
+                        @if(auth()->user()->profile_url)
+                        <button type="button"
+                                onclick="deleteProfileImage()"
+                                class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition-colors duration-200"
+                                title="Delete profile picture">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                        @endif
+                    </div>
                 </div>
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ auth()->user()->name }}</h3>
@@ -278,6 +291,46 @@
                 closeProfileImageModal();
             }
         });
+
+        // Delete profile image function
+        function deleteProfileImage() {
+            if (!confirm('Are you sure you want to delete your profile picture?')) {
+                return;
+            }
+
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                alert('CSRF token not found. Please refresh the page and try again.');
+                return;
+            }
+
+            fetch('{{ route("profile.delete-image") }}', {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to show the default avatar
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to delete profile image');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the profile image. Please try again.');
+            });
+        }
     </script>
 </section>
 
