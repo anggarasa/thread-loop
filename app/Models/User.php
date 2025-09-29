@@ -21,6 +21,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
+        'profile_url',
         'email',
         'password',
     ];
@@ -58,5 +60,55 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Generate a unique username from the user's name
+     */
+    public static function generateUsername(string $name): string
+    {
+        // Convert name to lowercase and replace spaces with dots
+        $baseUsername = Str::of($name)
+            ->lower()
+            ->replace(' ', '.')
+            ->replaceMatches('/[^a-z0-9.]/', '')
+            ->toString();
+
+        // Remove consecutive dots and trim dots from start/end
+        $baseUsername = preg_replace('/\.+/', '.', $baseUsername);
+        $baseUsername = trim($baseUsername, '.');
+
+        // If empty after cleaning, use 'user'
+        if (empty($baseUsername)) {
+            $baseUsername = 'user';
+        }
+
+        return $baseUsername;
+    }
+
+    /**
+     * Generate a unique username from the user's name, checking for uniqueness
+     */
+    public static function generateUniqueUsername(string $name): string
+    {
+        $baseUsername = static::generateUsername($name);
+        $username = $baseUsername;
+        $counter = 1;
+
+        // Check if username exists and add number if needed
+        while (static::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+
+        return $username;
+    }
+
+    /**
+     * Generate profile URL from username
+     */
+    public function generateProfileUrl(): string
+    {
+        return url("/profile/{$this->username}");
     }
 }

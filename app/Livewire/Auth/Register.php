@@ -34,6 +34,9 @@ class Register extends Component
 
         $validated['password'] = Hash::make($validated['password']);
 
+        // Generate username automatically from name
+        $validated['username'] = User::generateUniqueUsername($validated['name']);
+
         event(new Registered(($user = User::create($validated))));
 
         Auth::login($user);
