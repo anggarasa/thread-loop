@@ -150,3 +150,77 @@ textarea:focus {
 .dark textarea:focus:invalid {
     @apply ring-red-400;
 }
+
+/* Media preview responsive styles */
+#media-preview {
+    @apply flex justify-center items-center;
+}
+
+#preview-image,
+#preview-video {
+    @apply transition-all duration-300 ease-in-out;
+    @apply shadow-lg;
+}
+
+/* Ensure preview container centers content properly */
+#media-preview > div {
+    @apply flex justify-center items-center w-full;
+}
+
+/* Responsive preview sizing */
+@media (max-width: 640px) {
+    #preview-image,
+    #preview-video {
+        @apply max-h-80;
+    }
+}
+
+@media (min-width: 641px) {
+    #preview-image,
+    #preview-video {
+        @apply max-h-96;
+    }
+}
+
+/* Portrait images/videos get more height */
+.portrait-preview {
+    @apply max-h-[500px] w-auto;
+}
+
+/* Landscape images/videos get standard height */
+.landscape-preview {
+    @apply max-h-96 w-full;
+}
+
+/* Square images/videos get fixed height */
+.square-preview {
+    @apply h-96 max-h-96 w-96 max-w-full;
+}
+
+/* Ensure proper centering for all preview types */
+#media-preview .portrait-preview,
+#media-preview .landscape-preview,
+#media-preview .square-preview {
+    @apply mx-auto;
+}
+
+/* Add subtle background for better visibility */
+#media-preview {
+    @apply bg-gray-50 dark:bg-zinc-800 rounded-xl p-4;
+}
+
+/* Smooth fade-in animation for preview */
+#media-preview.fade-in {
+    animation: fadeInPreview 0.3s ease-in-out;
+}
+
+@keyframes fadeInPreview {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

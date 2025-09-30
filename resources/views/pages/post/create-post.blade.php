@@ -74,8 +74,8 @@
                         <!-- Preview Area -->
                         <div id="media-preview" class="mt-4 hidden">
                             <div class="relative">
-                                <img id="preview-image" class="w-full h-48 object-cover rounded-xl" style="display: none;">
-                                <video id="preview-video" class="w-full h-48 object-cover rounded-xl" controls style="display: none;"></video>
+                                <img id="preview-image" class="w-full max-h-96 object-contain rounded-xl" style="display: none;">
+                                <video id="preview-video" class="w-full max-h-96 object-contain rounded-xl" controls style="display: none;"></video>
                                 <button type="button" onclick="removeMedia()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors duration-200">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -138,15 +138,75 @@
             const previewImage = document.getElementById('preview-image');
             const previewVideo = document.getElementById('preview-video');
 
+            // Reset classes
+            previewImage.className = 'w-full max-h-96 object-contain rounded-xl transition-all duration-300 ease-in-out shadow-lg';
+            previewVideo.className = 'w-full max-h-96 object-contain rounded-xl transition-all duration-300 ease-in-out shadow-lg';
+
             preview.classList.remove('hidden');
+            preview.classList.add('fade-in');
 
             if (file.type.startsWith('image/')) {
                 previewImage.style.display = 'block';
                 previewVideo.style.display = 'none';
+
+                // Create image to get natural dimensions
+                const img = new Image();
+                img.onload = function() {
+                    const aspectRatio = this.naturalWidth / this.naturalHeight;
+
+                    // Remove existing aspect ratio classes
+                    previewImage.classList.remove('portrait-preview', 'landscape-preview', 'square-preview');
+
+                    // Add appropriate class based on aspect ratio
+                    if (aspectRatio > 1.2) {
+                        // Landscape
+                        previewImage.classList.add('landscape-preview');
+                    } else if (aspectRatio < 0.8) {
+                        // Portrait
+                        previewImage.classList.add('portrait-preview');
+                    } else {
+                        // Square or near square
+                        previewImage.classList.add('square-preview');
+                    }
+
+                    // Ensure it doesn't exceed container width
+                    previewImage.style.maxWidth = '100%';
+                    previewImage.style.width = 'auto';
+                    previewImage.style.height = 'auto';
+                };
+                img.src = URL.createObjectURL(file);
                 previewImage.src = URL.createObjectURL(file);
+
             } else if (file.type.startsWith('video/')) {
                 previewVideo.style.display = 'block';
                 previewImage.style.display = 'none';
+
+                // Create video element to get dimensions
+                const video = document.createElement('video');
+                video.onloadedmetadata = function() {
+                    const aspectRatio = this.videoWidth / this.videoHeight;
+
+                    // Remove existing aspect ratio classes
+                    previewVideo.classList.remove('portrait-preview', 'landscape-preview', 'square-preview');
+
+                    // Add appropriate class based on aspect ratio
+                    if (aspectRatio > 1.2) {
+                        // Landscape
+                        previewVideo.classList.add('landscape-preview');
+                    } else if (aspectRatio < 0.8) {
+                        // Portrait
+                        previewVideo.classList.add('portrait-preview');
+                    } else {
+                        // Square or near square
+                        previewVideo.classList.add('square-preview');
+                    }
+
+                    // Ensure it doesn't exceed container width
+                    previewVideo.style.maxWidth = '100%';
+                    previewVideo.style.width = 'auto';
+                    previewVideo.style.height = 'auto';
+                };
+                video.src = URL.createObjectURL(file);
                 previewVideo.src = URL.createObjectURL(file);
             }
         }
@@ -159,10 +219,18 @@
 
             fileInput.value = '';
             preview.classList.add('hidden');
+
+            // Reset image
             previewImage.style.display = 'none';
-            previewVideo.style.display = 'none';
             previewImage.src = '';
+            previewImage.className = 'w-full max-h-96 object-contain rounded-xl transition-all duration-300 ease-in-out shadow-lg';
+            previewImage.classList.remove('portrait-preview', 'landscape-preview', 'square-preview');
+
+            // Reset video
+            previewVideo.style.display = 'none';
             previewVideo.src = '';
+            previewVideo.className = 'w-full max-h-96 object-contain rounded-xl transition-all duration-300 ease-in-out shadow-lg';
+            previewVideo.classList.remove('portrait-preview', 'landscape-preview', 'square-preview');
         }
 
         // Form validation
