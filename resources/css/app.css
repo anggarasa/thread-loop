@@ -224,3 +224,16 @@ textarea:focus {
         transform: scale(1);
     }
 }
+
+/* Delete button transitions */
+#remove-media-btn {
+    @apply transition-all duration-200 ease-in-out;
+}
+
+#remove-media-btn.hidden {
+    @apply opacity-0 pointer-events-none;
+}
+
+#remove-media-btn:not(.hidden) {
+    @apply opacity-100 pointer-events-auto;
+}

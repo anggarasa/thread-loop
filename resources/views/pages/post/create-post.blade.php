@@ -76,7 +76,7 @@
                             <div class="relative">
                                 <img id="preview-image" class="w-full max-h-96 object-contain rounded-xl" style="display: none;">
                                 <video id="preview-video" class="w-full max-h-96 object-contain rounded-xl" controls style="display: none;"></video>
-                                <button type="button" onclick="removeMedia()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors duration-200">
+                                <button id="remove-media-btn" type="button" onclick="removeMedia()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors duration-200 hidden">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
@@ -137,6 +137,7 @@
             const preview = document.getElementById('media-preview');
             const previewImage = document.getElementById('preview-image');
             const previewVideo = document.getElementById('preview-video');
+            const removeBtn = document.getElementById('remove-media-btn');
 
             // Reset classes
             previewImage.className = 'w-full max-h-96 object-contain rounded-xl transition-all duration-300 ease-in-out shadow-lg';
@@ -148,6 +149,7 @@
             if (file.type.startsWith('image/')) {
                 previewImage.style.display = 'block';
                 previewVideo.style.display = 'none';
+                removeBtn.classList.remove('hidden'); // Show delete button
 
                 // Create image to get natural dimensions
                 const img = new Image();
@@ -180,6 +182,7 @@
             } else if (file.type.startsWith('video/')) {
                 previewVideo.style.display = 'block';
                 previewImage.style.display = 'none';
+                removeBtn.classList.remove('hidden'); // Show delete button
 
                 // Create video element to get dimensions
                 const video = document.createElement('video');
@@ -216,9 +219,11 @@
             const preview = document.getElementById('media-preview');
             const previewImage = document.getElementById('preview-image');
             const previewVideo = document.getElementById('preview-video');
+            const removeBtn = document.getElementById('remove-media-btn');
 
             fileInput.value = '';
             preview.classList.add('hidden');
+            removeBtn.classList.add('hidden'); // Hide delete button
 
             // Reset image
             previewImage.style.display = 'none';
