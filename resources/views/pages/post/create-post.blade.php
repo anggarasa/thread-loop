@@ -3,35 +3,50 @@
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-700 overflow-hidden"></div>
-                <!-- Header -->
+    <!-- Header -->
                 <div class="px-6 py-6 border-b border-gray-100 dark:border-zinc-700">
                     <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Create New Post</h1>
                     <p class="text-gray-600 dark:text-zinc-400 mt-1">Share your thoughts with the community</p>
                 </div>
 
+                <!-- Loading Overlay -->
+                <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div class="bg-white dark:bg-zinc-800 rounded-2xl p-8 max-w-sm mx-4 text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto mb-4"></div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Creating Post...</h3>
+                        <p class="text-gray-600 dark:text-zinc-400 text-sm mb-4" id="loading-message">Please wait while we process your post</p>
+
+                        <!-- Progress bar -->
+                        <div class="w-full bg-gray-200 dark:bg-zinc-700 rounded-full h-2 mb-2">
+                            <div id="progress-bar" class="bg-gray-900 dark:bg-white h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-zinc-500" id="progress-text">Preparing...</p>
+                </div>
+                </div>
+
                 <!-- Form -->
-                <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
+                <form id="create-post-form" action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
                     @csrf
 
                     <!-- Content Input -->
                     <div class="mb-6">
                         <label for="content" class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3">
-                            What's on your mind?
-                        </label>
-                        <div class="relative">
-                            <textarea
-                                id="content"
-                                name="content"
-                                rows="6"
+                        What's on your mind?
+                    </label>
+                    <div class="relative">
+                        <textarea
+                            id="content"
+                            name="content"
+                            rows="6"
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-xl focus:ring-2 focus:ring-gray-900 dark:focus:ring-zinc-400 focus:border-transparent resize-none transition-all duration-200 placeholder-gray-400 dark:placeholder-zinc-500 text-gray-900 dark:text-white bg-white dark:bg-zinc-700"
-                                placeholder="Share your thoughts, ideas, or experiences..."
+                            placeholder="Share your thoughts, ideas, or experiences..."
                                 maxlength="500"
                                 required
                             >{{ old('content') }}</textarea>
 
                             <!-- Character Counter -->
                             <div class="absolute bottom-3 right-3 text-xs text-gray-400 dark:text-zinc-500">
-                                <span id="char-count">0</span>/500
+                            <span id="char-count">0</span>/500
                             </div>
                         </div>
 
@@ -44,7 +59,7 @@
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3">
                             Add Media (Optional)
-                        </label>
+                            </label>
 
                         <!-- File Input -->
                         <div class="relative">
@@ -67,7 +82,7 @@
                                         <span class="font-medium">Click to upload</span> or drag and drop
                                     </p>
                                     <p class="text-xs text-gray-400 dark:text-zinc-500 mt-1">Images or videos up to 10MB</p>
-                                </div>
+                            </div>
                             </label>
                         </div>
 
@@ -87,9 +102,9 @@
                         @error('media')
                             <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
-                    </div>
+                </div>
 
-                    <!-- Action Buttons -->
+                <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
                         <a href="{{ route('homePage') }}"
                            class="px-6 py-3 text-gray-700 dark:text-zinc-300 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-xl font-medium transition-colors duration-200 text-center">
@@ -103,11 +118,31 @@
                                 </svg>
                                 Create Post
                             </span>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    </button>
+                </div>
+            </form>
+        </div>
         </main>
+                    </div>
+
+    <!-- Success Snackbar -->
+    <div id="success-snackbar" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-y-full">
+        <div class="flex items-center space-x-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="success-message">Post created successfully!</span>
+                    </div>
+                </div>
+
+    <!-- Error Snackbar -->
+    <div id="error-snackbar" class="hidden fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-y-full">
+        <div class="flex items-center space-x-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span id="error-message">Failed to create post. Please try again.</span>
+        </div>
     </div>
 
     <!-- JavaScript for enhanced UX -->
@@ -146,7 +181,7 @@
             preview.classList.remove('hidden');
             preview.classList.add('fade-in');
 
-            if (file.type.startsWith('image/')) {
+                    if (file.type.startsWith('image/')) {
                 previewImage.style.display = 'block';
                 previewVideo.style.display = 'none';
                 removeBtn.classList.remove('hidden'); // Show delete button
@@ -238,16 +273,201 @@
             previewVideo.classList.remove('portrait-preview', 'landscape-preview', 'square-preview');
         }
 
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
+        // AJAX Form submission
+        document.getElementById('create-post-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
             const content = textarea.value.trim();
             if (!content) {
-                e.preventDefault();
                 textarea.focus();
                 textarea.classList.add('border-red-500', 'dark:border-red-400');
+                showError('Please enter some content for your post.');
                 return;
             }
+
+            // Show loading overlay
+            showLoadingOverlay();
+
+            // Prepare form data BEFORE disabling form
+            const formData = new FormData(this);
+
+            // Ensure content is included in form data
+            if (!formData.has('content') || formData.get('content') === '') {
+                console.log('Content not found in form data, adding manually:', content);
+                formData.set('content', content);
+            } else {
+                console.log('Content found in form data:', formData.get('content'));
+            }
+
+            // Debug: Log form data to console
+            console.log('Form data being sent:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+
+            // Disable form elements AFTER preparing form data
+            disableForm();
+
+            // Submit via AJAX
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            console.log('CSRF Token:', csrfToken);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideLoadingOverlay();
+
+                if (data.success) {
+                    showSuccess(data.message);
+                    // Redirect after showing success message
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1500);
+                } else {
+                    // Handle validation errors
+                    if (data.errors) {
+                        let errorMessage = 'Validation failed:\n';
+                        for (let field in data.errors) {
+                            errorMessage += `• ${data.errors[field].join(', ')}\n`;
+                        }
+                        showError(errorMessage);
+                    } else {
+                        showError(data.message || 'Failed to create post. Please try again.');
+                    }
+                    enableForm();
+                }
+            })
+            .catch(error => {
+                hideLoadingOverlay();
+                enableForm();
+                console.error('Error:', error);
+                showError('An error occurred. Please try again.');
+            });
         });
+
+        // Loading overlay functions
+        function showLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            const message = document.getElementById('loading-message');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            // Reset progress
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Preparing...';
+
+            // Check if there's a file being uploaded
+            const fileInput = document.getElementById('media');
+            if (fileInput.files.length > 0) {
+                message.textContent = 'Uploading media and creating post...';
+                simulateProgress();
+            } else {
+                message.textContent = 'Creating post...';
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Processing...';
+            }
+
+            overlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function simulateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            let progress = 0;
+
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+
+                progressBar.style.width = progress + '%';
+
+                if (progress < 30) {
+                    progressText.textContent = 'Uploading media...';
+                } else if (progress < 70) {
+                    progressText.textContent = 'Processing media...';
+                } else {
+                    progressText.textContent = 'Creating post...';
+                }
+
+                if (progress >= 90) {
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Form state management
+        function disableForm() {
+            const form = document.getElementById('create-post-form');
+            const inputs = form.querySelectorAll('input, textarea, button');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+        }
+
+        function enableForm() {
+            const form = document.getElementById('create-post-form');
+            const inputs = form.querySelectorAll('input, textarea, button');
+            inputs.forEach(input => {
+                input.disabled = false;
+            });
+        }
+
+        // Snackbar functions
+        function showSuccess(message) {
+            const snackbar = document.getElementById('success-snackbar');
+            const messageEl = document.getElementById('success-message');
+
+            messageEl.textContent = message;
+            snackbar.classList.remove('hidden', 'translate-y-full');
+            snackbar.classList.add('translate-y-0');
+
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                hideSnackbar(snackbar);
+            }, 3000);
+        }
+
+        function showError(message) {
+            const snackbar = document.getElementById('error-snackbar');
+            const messageEl = document.getElementById('error-message');
+
+            messageEl.textContent = message;
+            snackbar.classList.remove('hidden', 'translate-y-full');
+            snackbar.classList.add('translate-y-0');
+
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                hideSnackbar(snackbar);
+            }, 5000);
+        }
+
+        function hideSnackbar(snackbar) {
+            snackbar.classList.remove('translate-y-0');
+            snackbar.classList.add('translate-y-full');
+
+            setTimeout(() => {
+                snackbar.classList.add('hidden');
+            }, 300);
+        }
 
         // Auto-resize textarea
         textarea.addEventListener('input', function() {

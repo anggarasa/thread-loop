@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -17,37 +17,80 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'content' => 'required|string|max:500',
-            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // 10MB max
-        ]);
+        try {
+            // Debug: Log request data
+            Log::info('Post creation request data:', [
+                'content' => $request->input('content'),
+                'has_media' => $request->hasFile('media'),
+                'all_input' => $request->all()
+            ]);
 
-        $postData = [
-            'user_id' => Auth::id(),
-            'content' => $request->content,
-            'likes_count' => 0,
-            'comments_count' => 0,
-        ];
+            $request->validate([
+                'content' => 'required|string|max:500',
+                'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // 10MB max
+            ]);
 
-        // Handle media upload if present
-        if ($request->hasFile('media')) {
-            $file = $request->file('media');
-            $mediaType = $file->getMimeType();
+            $postData = [
+                'user_id' => Auth::id(),
+                'content' => $request->content,
+                'likes_count' => 0,
+                'comments_count' => 0,
+            ];
 
-            if (str_starts_with($mediaType, 'image/')) {
-                $postData['media_type'] = 'image';
-            } elseif (str_starts_with($mediaType, 'video/')) {
-                $postData['media_type'] = 'video';
+            // Handle media upload to Cloudinary if present
+            if ($request->hasFile('media')) {
+                $file = $request->file('media');
+                $mediaType = $file->getMimeType();
+
+                // Determine media type
+                if (str_starts_with($mediaType, 'image/')) {
+                    $postData['media_type'] = 'image';
+                } elseif (str_starts_with($mediaType, 'video/')) {
+                    $postData['media_type'] = 'video';
+                }
+
+                // Upload to Cloudinary
+                $uploadResult = Cloudinary::uploadApi()->upload($file->getRealPath(), [
+                    'folder' => 'thread-loop/posts',
+                    'resource_type' => $postData['media_type'],
+                    'transformation' => [
+                        'quality' => 'auto',
+                        'fetch_format' => 'auto'
+                    ]
+                ]);
+
+                $postData['media_path'] = $uploadResult['public_id'];
+                $postData['media_url'] = $uploadResult['secure_url'];
             }
 
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('posts', $filename, 'public');
-            $postData['media_path'] = $path;
-            $postData['media_url'] = Storage::url($path);
+            // Create post in database
+            Post::create($postData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Post created successfully!',
+                'redirect_url' => route('homePage')
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Post creation validation failed:', [
+                'errors' => $e->errors(),
+                'input' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed. Please check your input.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Post creation failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create post. Please try again.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        Post::create($postData);
-
-        return redirect()->route('homePage')->with('success', 'Post created successfully!');
     }
 }

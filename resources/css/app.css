@@ -237,3 +237,46 @@ textarea:focus {
 #remove-media-btn:not(.hidden) {
     @apply opacity-100 pointer-events-auto;
 }
+
+/* Loading overlay styles */
+#loading-overlay {
+    backdrop-filter: blur(4px);
+}
+
+#loading-overlay .animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Snackbar styles */
+#success-snackbar,
+#error-snackbar {
+    @apply transition-all duration-300 ease-in-out;
+}
+
+#success-snackbar {
+    @apply bg-green-500 hover:bg-green-600;
+}
+
+#error-snackbar {
+    @apply bg-red-500 hover:bg-red-600;
+}
+
+/* Form disabled state */
+#create-post-form:has(input:disabled) {
+    @apply opacity-75;
+}
+
+#create-post-form input:disabled,
+#create-post-form textarea:disabled,
+#create-post-form button:disabled {
+    @apply cursor-not-allowed;
+}
