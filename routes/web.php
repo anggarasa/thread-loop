@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Livewire\Home\HomePage;
-use App\Livewire\Post\PostPage;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -16,7 +16,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', HomePage::class)->name('homePage');
-    Route::get('/posts', PostPage::class)->name('posts');
+    Route::get('/posts', [PostController::class, 'create'])->name('posts.create');
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
 });
 
 Route::middleware(['auth'])->group(function () {
