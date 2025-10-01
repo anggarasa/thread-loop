@@ -280,3 +280,120 @@ textarea:focus {
 #create-post-form button:disabled {
     @apply cursor-not-allowed;
 }
+
+/* Shimmer loading animation for search page images */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.dark .shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.1) 20%,
+        rgba(255, 255, 255, 0.2) 60%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Image loading states */
+.image-loading {
+    @apply opacity-0 transition-opacity duration-300;
+}
+
+.image-loaded {
+    @apply opacity-100;
+}
+
+.image-error {
+    @apply opacity-50;
+}
+
+/* Video loading states */
+.video-loading {
+    @apply opacity-0 transition-opacity duration-300;
+}
+
+.video-loaded {
+    @apply opacity-100;
+}
+
+/* Hover effects for media */
+.media-hover-overlay {
+    @apply absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100;
+}
+
+/* Responsive image containers */
+.image-container {
+    @apply relative w-full aspect-[4/3] bg-zinc-100 dark:bg-zinc-800 rounded-lg overflow-hidden;
+}
+
+.video-container {
+    @apply relative w-full aspect-[16/9] bg-zinc-100 dark:bg-zinc-800 rounded-lg overflow-hidden;
+}
+
+/* Loading spinner for media */
+.media-loading-spinner {
+    @apply absolute inset-0 bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center;
+}
+
+.media-loading-spinner svg {
+    @apply w-8 h-8 text-zinc-400 animate-spin;
+}
+
+/* Line clamp utilities for grid cards */
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Grid card hover effects */
+.grid-card {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-lg;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+    .grid-cols-1 {
+        @apply grid-cols-1;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .md\:grid-cols-2 {
+        @apply grid-cols-2;
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1280px) {
+    .lg\:grid-cols-3 {
+        @apply grid-cols-3;
+    }
+}
+
+@media (min-width: 1280px) {
+    .xl\:grid-cols-4 {
+        @apply grid-cols-4;
+    }
+}
