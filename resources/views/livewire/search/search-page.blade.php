@@ -227,7 +227,7 @@
                                             </div>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <h3 class="font-semibold text-zinc-900 dark:text-white truncate">{{ $post->user->username ?? $post->user->name }}</h3>
+                                            <h3 class="font-semibold text-zinc-900 dark:text-white">{{ Str::limit($post->user->username, 15, '...') ?? Str::limit($post->user->name, 15, '...') }}</h3>
                                             <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>
                                         </div>
                                     </div>
