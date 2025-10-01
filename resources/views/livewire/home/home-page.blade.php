@@ -38,7 +38,17 @@
                             @elseif($post->isVideoPost() && $post->media_url)
                                 <!-- Post Video -->
                                 <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
-                                    <video controls class="w-full h-full object-cover">
+                                    <video
+                                        controls
+                                        muted
+                                        loop
+                                        playsinline
+                                        preload="metadata"
+                                        class="w-full h-full object-cover video-autoplay"
+                                        data-post-id="{{ $post->id }}"
+                                        onloadstart="this.style.opacity='0.8'"
+                                        oncanplay="this.style.opacity='1'"
+                                    >
                                         <source src="{{ $post->media_url }}" type="video/mp4">
                                         Your browser does not support the video tag.
                                     </video>
@@ -219,5 +229,19 @@
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
+
+        /* Video autoplay styles */
+        .video-autoplay {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .video-autoplay.loading {
+            opacity: 0.8;
+        }
+
+        .video-autoplay.playing {
+            opacity: 1;
+        }
     </style>
+
 </div>

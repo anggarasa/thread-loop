@@ -339,7 +339,7 @@ textarea:focus {
 
 /* Hover effects for media */
 .media-hover-overlay {
-    @apply absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100;
+    @apply absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100;
 }
 
 /* Responsive image containers */
@@ -395,5 +395,103 @@ textarea:focus {
 @media (min-width: 1280px) {
     .xl\:grid-cols-4 {
         @apply grid-cols-4;
+    }
+}
+
+/* Video autoplay enhancements */
+.video-autoplay {
+    @apply transition-all duration-300 ease-in-out;
+    @apply cursor-pointer;
+}
+
+.video-autoplay:hover {
+    @apply scale-[1.02];
+}
+
+.video-autoplay.loading {
+    @apply opacity-80;
+}
+
+.video-autoplay.playing {
+    @apply opacity-100;
+}
+
+/* Video container improvements */
+.video-container {
+    @apply relative overflow-hidden rounded-lg;
+    @apply bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500;
+}
+
+.video-container::before {
+    content: "";
+    @apply absolute inset-0 bg-black/10 pointer-events-none;
+    @apply transition-opacity duration-300;
+}
+
+.video-container:hover::before {
+    @apply opacity-0;
+}
+
+/* Video controls styling */
+.video-autoplay::-webkit-media-controls {
+    @apply opacity-0 transition-opacity duration-300;
+}
+
+.video-autoplay:hover::-webkit-media-controls {
+    @apply opacity-100;
+}
+
+/* Video loading state */
+.video-loading-overlay {
+    @apply absolute inset-0 bg-zinc-200 dark:bg-zinc-700;
+    @apply flex items-center justify-center;
+    @apply transition-opacity duration-300;
+}
+
+.video-loading-overlay.hidden {
+    @apply opacity-0 pointer-events-none;
+}
+
+/* Video play button overlay */
+.video-play-overlay {
+    @apply absolute inset-0 bg-black/20;
+    @apply flex items-center justify-center;
+    @apply transition-all duration-300;
+    @apply opacity-0 pointer-events-none;
+}
+
+.video-autoplay:hover .video-play-overlay {
+    @apply opacity-100;
+}
+
+.video-play-button {
+    @apply w-16 h-16 bg-white/90 dark:bg-zinc-800/90;
+    @apply rounded-full flex items-center justify-center;
+    @apply shadow-lg hover:shadow-xl;
+    @apply transition-all duration-300;
+}
+
+.video-play-button:hover {
+    @apply scale-110 bg-white dark:bg-zinc-800;
+}
+
+/* Smooth video transitions */
+.video-autoplay {
+    @apply transform-gpu;
+}
+
+/* Performance optimizations */
+.video-autoplay {
+    will-change: transform, opacity;
+}
+
+/* Mobile video optimizations */
+@media (max-width: 768px) {
+    .video-autoplay {
+        @apply transform-none;
+    }
+
+    .video-autoplay:hover {
+        @apply scale-100;
     }
 }
