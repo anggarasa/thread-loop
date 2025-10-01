@@ -17,7 +17,7 @@
                     <flux:navlist.item icon="home" :href="route('homePage')" :current="request()->routeIs('homePage')" wire:navigate>{{ __('Home') }}</flux:navlist.item>
 
                     <!-- Search -->
-                    <flux:navlist.item icon="magnifying-glass" :href="route('homePage')" :current="request()->routeIs('homePage')" wire:navigate class="mt-3">{{ __('Search') }}</flux:navlist.item>
+                    <flux:navlist.item icon="magnifying-glass" :href="route('searchPage')" :current="request()->routeIs('searchPage')" wire:navigate class="mt-3">{{ __('Search') }}</flux:navlist.item>
 
                     <!-- Post -->
                     <flux:navlist.item icon="pencil" :href="route('posts.create')" :current="request()->routeIs('posts.create')" wire:navigate class="mt-3">{{ __('Post') }}</flux:navlist.item>
