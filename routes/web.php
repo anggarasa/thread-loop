@@ -3,6 +3,7 @@
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Livewire\Home\HomePage;
+use App\Livewire\Posts\PostDetail;
 use App\Livewire\Search\SearchPage;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
@@ -20,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/search', SearchPage::class)->name('searchPage');
     Route::get('/posts', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::get('/posts/{post}', PostDetail::class)->name('posts.show');
 });
 
 Route::middleware(['auth'])->group(function () {
