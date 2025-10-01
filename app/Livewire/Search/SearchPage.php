@@ -69,7 +69,7 @@ class SearchPage extends Component
 
     public function getPostsProperty()
     {
-        if (empty($this->search)) {
+        if (empty($this->search) || $this->activeTab !== 'posts') {
             return collect();
         }
 
@@ -108,7 +108,7 @@ class SearchPage extends Component
 
     public function getUsersProperty()
     {
-        if (empty($this->search)) {
+        if (empty($this->search) || $this->activeTab !== 'users') {
             return collect();
         }
 
@@ -141,13 +141,21 @@ class SearchPage extends Component
 
     private function getSortColumn()
     {
-        return match($this->sortBy) {
-            'recent' => 'created_at',
-            'popular' => 'likes_count',
-            'name' => 'name',
-            'username' => 'username',
-            default => 'created_at'
-        };
+        if ($this->activeTab === 'posts') {
+            return match($this->sortBy) {
+                'recent' => 'created_at',
+                'popular' => 'likes_count',
+                default => 'created_at'
+            };
+        } else {
+            return match($this->sortBy) {
+                'recent' => 'created_at',
+                'popular' => 'created_at', // Users don't have likes_count, use created_at
+                'name' => 'name',
+                'username' => 'username',
+                default => 'created_at'
+            };
+        }
     }
 
     private function getSortDirection()
@@ -205,8 +213,8 @@ class SearchPage extends Component
     public function render()
     {
         return view('livewire.search.search-page', [
-            'posts' => $this->posts,
-            'users' => $this->users,
+            'posts' => $this->activeTab === 'posts' ? $this->posts : collect(),
+            'users' => $this->activeTab === 'users' ? $this->users : collect(),
             'suggestions' => $this->suggestions,
         ]);
     }

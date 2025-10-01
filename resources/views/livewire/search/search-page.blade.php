@@ -1,5 +1,5 @@
 <div class="min-h-screen">
-    <div class="mx-auto max-w-4xl px-4 py-6 lg:px-6">
+    <div class="mx-auto max-w-7xl px-4 py-6 lg:px-6">
         <!-- Search Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-zinc-900 dark:text-white mb-2">Search</h1>
