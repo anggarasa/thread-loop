@@ -103,7 +103,7 @@ class SearchPage extends Component
         // Apply sorting
         $query->orderBy($this->getSortColumn(), $this->getSortDirection());
 
-        return $query->paginate(10);
+        return $query->paginate(12);
     }
 
     public function getUsersProperty()
