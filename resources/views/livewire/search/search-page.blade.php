@@ -1,5 +1,5 @@
 <div class="min-h-screen">
-    <div class="mx-auto max-w-4xl px-4 py-6 lg:px-6"></div>
+    <div class="mx-auto max-w-4xl px-4 py-6 lg:px-6">
         <!-- Search Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-zinc-900 dark:text-white mb-2">Search</h1>
@@ -185,13 +185,13 @@
             @endif
 
             <!-- Loading State -->
-            <div wire:loading class="flex items-center justify-center py-8">
-                <div class="flex items-center space-x-2 text-zinc-600 dark:text-zinc-400">
-                    <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <div wire:loading class="flex items-center justify-center min-h-[400px] w-full">
+                <div class="flex flex-col items-center space-y-4 text-zinc-600 dark:text-zinc-400">
+                    <svg class="animate-spin h-8 w-8" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Searching...</span>
+                    <span class="text-lg font-medium">Searching...</span>
                 </div>
             </div>
 
@@ -290,14 +290,16 @@
                                 </div>
                             </div>
                         @empty
-                        <div class="text-center py-12">
-                            <div class="mx-auto w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
-                                <svg class="w-12 h-12 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.709M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
+                        <div class="col-span-full flex items-center justify-center min-h-[400px] w-full">
+                            <div class="text-center">
+                                <div class="mx-auto w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
+                                    <svg class="w-12 h-12 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.709M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-semibold text-zinc-900 dark:text-white mb-3">No posts found</h3>
+                                <p class="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">Try adjusting your search terms or filters to find what you're looking for.</p>
                             </div>
-                            <h3 class="text-lg font-medium text-zinc-900 dark:text-white mb-2">No posts found</h3>
-                            <p class="text-zinc-600 dark:text-zinc-400">Try adjusting your search terms or filters</p>
                         </div>
                     @endforelse
 
@@ -344,14 +346,16 @@
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-12">
-                            <div class="mx-auto w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
-                                <svg class="w-12 h-12 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
+                        <div class="flex items-center justify-center min-h-[400px] w-full">
+                            <div class="text-center">
+                                <div class="mx-auto w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
+                                    <svg class="w-12 h-12 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-semibold text-zinc-900 dark:text-white mb-3">No users found</h3>
+                                <p class="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">Try adjusting your search terms or filters to find what you're looking for.</p>
                             </div>
-                            <h3 class="text-lg font-medium text-zinc-900 dark:text-white mb-2">No users found</h3>
-                            <p class="text-zinc-600 dark:text-zinc-400">Try adjusting your search terms or filters</p>
                         </div>
                     @endforelse
 
