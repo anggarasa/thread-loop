@@ -58,7 +58,7 @@
                     <!-- Media Upload Section -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3">
-                            Add Media (Optional)
+                            Add Media <span class="text-red-500">*</span> (Required)
                             </label>
 
                         <!-- File Input -->
@@ -81,7 +81,7 @@
                                     <p class="text-sm text-gray-500 dark:text-zinc-400 group-hover:text-gray-600 dark:group-hover:text-zinc-300 mt-2">
                                         <span class="font-medium">Click to upload</span> or drag and drop
                                     </p>
-                                    <p class="text-xs text-gray-400 dark:text-zinc-500 mt-1">Images or videos up to 10MB</p>
+                                    <p class="text-xs text-gray-400 dark:text-zinc-500 mt-1">Images or videos up to 10MB (Required)</p>
                             </div>
                             </label>
                         </div>
@@ -282,6 +282,13 @@
                 textarea.focus();
                 textarea.classList.add('border-red-500', 'dark:border-red-400');
                 showError('Please enter some content for your post.');
+                return;
+            }
+
+            // Check if media is selected
+            const mediaInput = document.getElementById('media');
+            if (!mediaInput.files || mediaInput.files.length === 0) {
+                showError('Please select an image or video to upload.');
                 return;
             }
 
