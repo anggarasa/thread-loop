@@ -190,10 +190,10 @@
                     img.classList.remove('object-cover');
                     img.classList.add('object-contain');
                 }
-                // For square images, use object-cover
+                // For square images (1:1), use object-contain to show full image
                 else {
-                    img.classList.remove('object-contain');
-                    img.classList.add('object-cover');
+                    img.classList.remove('object-cover');
+                    img.classList.add('object-contain');
                 }
             }
         }
