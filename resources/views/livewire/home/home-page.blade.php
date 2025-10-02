@@ -18,15 +18,18 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 class="font-semibold text-zinc-900 dark:text-white">{{ $post->user->username ?? $post->user->name }}</h3>
+                                    <a href="{{ route('profile.show', $post->user->username) }}" wire:navigate class="font-semibold text-zinc-900 dark:text-white hover:underline">{{ $post->user->username ?? $post->user->name }}</a>
                                     <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>
                                 </div>
                             </div>
-                            <button class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300" type="button" onclick="event.preventDefault();">
-                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                                </svg>
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                @livewire('follow-button', ['user' => $post->user])
+                                <button class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300" type="button" onclick="event.preventDefault();">
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         @if($post->isImagePost() && $post->media_url)
