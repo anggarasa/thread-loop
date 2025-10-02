@@ -1,4 +1,4 @@
-<div class="min-h-screen">
+<div class="min-h-screen" data-page="search">
     <div class="mx-auto max-w-7xl px-4 py-6 lg:px-6">
         <!-- Search Header -->
         <div class="mb-8">
@@ -201,9 +201,9 @@
                 <div class="flex items-center justify-between mb-4">
                     <div class="text-sm text-zinc-600 dark:text-zinc-400">
                         @if($activeTab === 'posts')
-                            {{ $posts->total() }} {{ Str::plural('post', $posts->total()) }} found
+                            {{ $posts->count() }} {{ Str::plural('post', $posts->count()) }} found
                         @else
-                            {{ $users->total() }} {{ Str::plural('user', $users->total()) }} found
+                            {{ $users->count() }} {{ Str::plural('user', $users->count()) }} found
                         @endif
                     </div>
                     <div class="text-sm text-zinc-500 dark:text-zinc-500">
@@ -213,7 +213,7 @@
 
                 @if($activeTab === 'posts')
                     <!-- Grid Layout for Posts -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         @forelse($posts as $post)
                             <a href="{{ route('posts.show', $post) }}" wire:navigate class="block overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow duration-200">
                                 <!-- Post Header -->
@@ -303,13 +303,31 @@
                         </div>
                     @endforelse
 
-                    @if($posts->hasPages())
-                        <div class="mt-8">
-                            {{ $posts->links() }}
+                    <!-- Loading indicator -->
+                    @if($loading)
+                        <div class="col-span-full flex justify-center py-8">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
+                    @endif
+
+                    <!-- Load more button -->
+                    @if($hasMorePosts && !$loading && $posts->count() > 0)
+                        <div class="col-span-full flex justify-center py-8">
+                            <button
+                                wire:click="loadMore"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Load More Posts
+                            </button>
+                        </div>
+                    @elseif(!$hasMorePosts && $posts->count() > 0)
+                        <div class="col-span-full text-center py-8">
+                            <p class="text-zinc-500 dark:text-zinc-400">No more posts to load</p>
                         </div>
                     @endif
                 @else
-                    @forelse($users as $user)
+                    <div id="users-container" class="space-y-6">
+                        @forelse($users as $user)
                         <div class="overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow duration-200">
                             <div class="p-6">
                                 <div class="flex items-center space-x-4">
@@ -359,11 +377,29 @@
                         </div>
                     @endforelse
 
-                    @if($users->hasPages())
-                        <div class="mt-8">
-                            {{ $users->links() }}
-                        </div>
-                    @endif
+                        <!-- Loading indicator -->
+                        @if($loading)
+                            <div class="flex justify-center py-8">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            </div>
+                        @endif
+
+                        <!-- Load more button -->
+                        @if($hasMoreUsers && !$loading && $users->count() > 0)
+                            <div class="flex justify-center py-8">
+                                <button
+                                    wire:click="loadMore"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    Load More Users
+                                </button>
+                            </div>
+                        @elseif(!$hasMoreUsers && $users->count() > 0)
+                            <div class="text-center py-8">
+                                <p class="text-zinc-500 dark:text-zinc-400">No more users to load</p>
+                            </div>
+                        @endif
+                    </div>
                 @endif
             </div>
         @else

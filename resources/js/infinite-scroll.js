@@ -17,9 +17,11 @@ function loadMorePosts() {
         return;
     }
 
-    // Check if we're on home page
+    // Check if we're on home page or search page
     const homePageElement = document.querySelector('[data-page="home"]');
-    if (!homePageElement) {
+    const searchPageElement = document.querySelector('[data-page="search"]');
+
+    if (!homePageElement && !searchPageElement) {
         return;
     }
 
@@ -31,22 +33,16 @@ function loadMorePosts() {
             const wireId = wireElement.getAttribute("wire:id");
             const component = window.Livewire.find(wireId);
 
-            if (component && component.hasMorePosts && !component.loading) {
-                isLoading = true;
-                component
-                    .call("loadMore")
-                    .then(() => {
-                        isLoading = false;
-                    })
-                    .catch(() => {
-                        isLoading = false;
-                    });
-            }
-        } else {
-            // Fallback: try to find component by looking for Livewire component in the page
-            const allComponents = window.Livewire.all();
-            for (let component of allComponents) {
-                if (component.hasMorePosts && !component.loading) {
+            if (component && !component.loading) {
+                // Check if we have more posts (for home page) or more posts/users (for search page)
+                const hasMore =
+                    component.hasMorePosts ||
+                    (component.hasMorePosts !== undefined &&
+                        component.hasMorePosts) ||
+                    (component.hasMoreUsers !== undefined &&
+                        component.hasMoreUsers);
+
+                if (hasMore) {
                     isLoading = true;
                     component
                         .call("loadMore")
@@ -56,7 +52,33 @@ function loadMorePosts() {
                         .catch(() => {
                             isLoading = false;
                         });
-                    break;
+                }
+            }
+        } else {
+            // Fallback: try to find component by looking for Livewire component in the page
+            const allComponents = window.Livewire.all();
+            for (let component of allComponents) {
+                if (!component.loading) {
+                    // Check if we have more posts (for home page) or more posts/users (for search page)
+                    const hasMore =
+                        component.hasMorePosts ||
+                        (component.hasMorePosts !== undefined &&
+                            component.hasMorePosts) ||
+                        (component.hasMoreUsers !== undefined &&
+                            component.hasMoreUsers);
+
+                    if (hasMore) {
+                        isLoading = true;
+                        component
+                            .call("loadMore")
+                            .then(() => {
+                                isLoading = false;
+                            })
+                            .catch(() => {
+                                isLoading = false;
+                            });
+                        break;
+                    }
                 }
             }
         }
@@ -64,15 +86,21 @@ function loadMorePosts() {
 }
 
 function setupInfiniteScroll() {
-    // Only setup if we're on the home page
+    // Only setup if we're on the home page or search page
     const homePageElement = document.querySelector('[data-page="home"]');
-    if (!homePageElement) {
+    const searchPageElement = document.querySelector('[data-page="search"]');
+
+    if (!homePageElement && !searchPageElement) {
         return;
     }
 
-    const postsContainer = document.getElementById("posts-container");
-    if (!postsContainer) {
-        console.warn("Posts container not found");
+    // For home page, look for posts-container
+    // For search page, look for posts-container or users-container
+    let postsContainer = document.getElementById("posts-container");
+    let usersContainer = document.getElementById("users-container");
+
+    if (!postsContainer && !usersContainer) {
+        console.warn("Posts or users container not found");
         return;
     }
 

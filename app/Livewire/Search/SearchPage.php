@@ -5,12 +5,9 @@ namespace App\Livewire\Search;
 use App\Models\Post;
 use App\Models\User;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class SearchPage extends Component
 {
-    use WithPagination;
-
     public $search = '';
     public $activeTab = 'posts';
     public $sortBy = 'recent';
@@ -19,40 +16,71 @@ class SearchPage extends Component
     public $mediaFilter = 'all';
     public $showSuggestions = false;
 
+    // Infinite scroll properties
+    public $posts = [];
+    public $users = [];
+    public $page = 1;
+    public $hasMorePosts = true;
+    public $hasMoreUsers = true;
+    public $loading = false;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'activeTab' => ['except' => 'posts'],
         'sortBy' => ['except' => 'recent'],
     ];
 
+    public function mount()
+    {
+        $this->loadInitialData();
+    }
+
     public function updatedSearch()
     {
-        $this->resetPage();
+        $this->resetSearchData();
         $this->showSuggestions = !empty($this->search) && strlen($this->search) < 3;
+        if (!empty($this->search)) {
+            $this->loadInitialData();
+        }
     }
 
     public function updatedActiveTab()
     {
-        $this->resetPage();
+        $this->resetSearchData();
+        $this->loadInitialData();
     }
 
     public function updatedSortBy()
     {
-        $this->resetPage();
+        $this->resetSearchData();
+        $this->loadInitialData();
+    }
+
+    public function updatedDateFilter()
+    {
+        $this->resetSearchData();
+        $this->loadInitialData();
+    }
+
+    public function updatedMediaFilter()
+    {
+        $this->resetSearchData();
+        $this->loadInitialData();
     }
 
     public function clearSearch()
     {
         $this->search = '';
         $this->showSuggestions = false;
-        $this->resetPage();
+        $this->resetSearchData();
     }
 
     public function selectSuggestion($suggestion)
     {
         $this->search = $suggestion;
         $this->showSuggestions = false;
-        $this->resetPage();
+        $this->resetSearchData();
+        $this->loadInitialData();
     }
 
     public function toggleFilters()
@@ -64,14 +92,53 @@ class SearchPage extends Component
     {
         $this->dateFilter = 'all';
         $this->mediaFilter = 'all';
-        $this->resetPage();
+        $this->resetSearchData();
+        $this->loadInitialData();
     }
 
-    public function getPostsProperty()
+    private function resetSearchData()
     {
-        if (empty($this->search) || $this->activeTab !== 'posts') {
-            return collect();
+        $this->posts = collect();
+        $this->users = collect();
+        $this->page = 1;
+        $this->hasMorePosts = true;
+        $this->hasMoreUsers = true;
+        $this->loading = false;
+    }
+
+    private function loadInitialData()
+    {
+        if (empty($this->search)) {
+            return;
         }
+
+        $this->page = 1;
+        $this->loadPosts();
+        $this->loadUsers();
+    }
+
+    public function loadMore()
+    {
+        if ($this->loading) {
+            return;
+        }
+
+        $this->page++;
+
+        if ($this->activeTab === 'posts') {
+            $this->loadPosts();
+        } else {
+            $this->loadUsers();
+        }
+    }
+
+    private function loadPosts()
+    {
+        if ($this->loading || !$this->hasMorePosts || empty($this->search)) {
+            return;
+        }
+
+        $this->loading = true;
 
         $query = Post::with('user')
             ->where('content', 'like', '%' . $this->search . '%');
@@ -103,14 +170,30 @@ class SearchPage extends Component
         // Apply sorting
         $query->orderBy($this->getSortColumn(), $this->getSortDirection());
 
-        return $query->paginate(12);
+        $newPosts = $query->skip(($this->page - 1) * 12)
+            ->limit(12)
+            ->get();
+
+        if ($newPosts->count() < 12) {
+            $this->hasMorePosts = false;
+        }
+
+        if ($this->page === 1) {
+            $this->posts = $newPosts;
+        } else {
+            $this->posts = collect($this->posts)->concat($newPosts);
+        }
+
+        $this->loading = false;
     }
 
-    public function getUsersProperty()
+    private function loadUsers()
     {
-        if (empty($this->search) || $this->activeTab !== 'users') {
-            return collect();
+        if ($this->loading || !$this->hasMoreUsers || empty($this->search)) {
+            return;
         }
+
+        $this->loading = true;
 
         $query = User::where(function ($q) {
             $q->where('name', 'like', '%' . $this->search . '%')
@@ -136,8 +219,23 @@ class SearchPage extends Component
         // Apply sorting
         $query->orderBy($this->getSortColumn(), $this->getSortDirection());
 
-        return $query->paginate(10);
+        $newUsers = $query->skip(($this->page - 1) * 10)
+            ->limit(10)
+            ->get();
+
+        if ($newUsers->count() < 10) {
+            $this->hasMoreUsers = false;
+        }
+
+        if ($this->page === 1) {
+            $this->users = $newUsers;
+        } else {
+            $this->users = collect($this->users)->concat($newUsers);
+        }
+
+        $this->loading = false;
     }
+
 
     private function getSortColumn()
     {
