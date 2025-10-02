@@ -22,14 +22,11 @@
                                     <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                @livewire('follow-button', ['user' => $post->user])
-                                <button class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300" type="button" onclick="event.preventDefault();">
-                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                                    </svg>
-                                </button>
-                            </div>
+                            <button class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300" type="button" onclick="event.preventDefault();">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                </svg>
+                            </button>
                         </div>
 
                         @if($post->isImagePost() && $post->media_url)
@@ -261,11 +258,11 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $user->username ?? $user->name }}</p>
+                                        <a href="{{ route('profile.show', $user->username) }}" wire:navigate class="text-sm font-semibold text-zinc-900 dark:text-white hover:underline">{{ $user->username ?? $user->name }}</a>
                                         <p class="text-xs text-zinc-500 dark:text-zinc-400">Suggested for you</p>
                                     </div>
                                 </div>
-                                <button class="text-sm font-semibold text-blue-500 hover:text-blue-600">Follow</button>
+                                @livewire('follow-button', ['user' => $user])
                             </div>
                             @empty
                             <div class="text-center py-4">
