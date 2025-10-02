@@ -3,13 +3,13 @@
     <div class="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-700">
         <div class="max-w-4xl mx-auto px-4 py-3">
             <div class="flex items-center space-x-4">
-                <a href="{{ route('homePage') }}" wire:navigate
+                <button onclick="history.back()"
                     class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
                 >
                     <svg class="w-6 h-6 text-zinc-600 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
-                </a>
+                </button>
                 <h1 class="text-lg font-semibold text-zinc-900 dark:text-white">Post</h1>
             </div>
         </div>
