@@ -10,6 +10,7 @@ use Livewire\Component;
 class HomePage extends Component
 {
     public $likedPosts = [];
+    public $savedPosts = [];
     public $showComments = [];
     public $newComments = [];
     public $comments = [];
@@ -22,6 +23,11 @@ class HomePage extends Component
     {
         // Initialize liked posts for current user
         $this->likedPosts = Post::whereHas('likes', function($query) {
+            $query->where('user_id', auth()->id());
+        })->pluck('id')->toArray();
+
+        // Initialize saved posts for current user
+        $this->savedPosts = Post::whereHas('savedBy', function($query) {
             $query->where('user_id', auth()->id());
         })->pluck('id')->toArray();
 
@@ -95,6 +101,24 @@ class HomePage extends Component
     public function isLiked($postId)
     {
         return in_array($postId, $this->likedPosts);
+    }
+
+    public function toggleSave($postId)
+    {
+        $post = Post::findOrFail($postId);
+
+        if (in_array($postId, $this->savedPosts)) {
+            $post->unsaveBy(auth()->user());
+            $this->savedPosts = array_diff($this->savedPosts, [$postId]);
+        } else {
+            $post->saveBy(auth()->user());
+            $this->savedPosts[] = $postId;
+        }
+    }
+
+    public function isSaved($postId)
+    {
+        return in_array($postId, $this->savedPosts);
     }
 
     public function loadPosts()

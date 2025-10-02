@@ -16,12 +16,14 @@ class PostDetail extends Component
     public $showComments = false;
     public $isLiked = false;
     public $likesCount = 0;
+    public $isSaved = false;
 
     public function mount(Post $post)
     {
         $this->post = $post->load(['user', 'comments.user']);
         $this->likesCount = $this->post->likes_count;
         $this->isLiked = $this->post->isLikedBy(auth()->user());
+        $this->isSaved = $this->post->isSavedBy(auth()->user());
     }
 
     public function toggleLike()
@@ -55,6 +57,16 @@ class PostDetail extends Component
     public function toggleComments()
     {
         $this->showComments = !$this->showComments;
+    }
+
+    public function toggleSave()
+    {
+        if ($this->isSaved) {
+            $this->post->unsaveBy(auth()->user());
+        } else {
+            $this->post->saveBy(auth()->user());
+        }
+        $this->isSaved = !$this->isSaved;
     }
 
     public function goBack()

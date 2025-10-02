@@ -76,4 +76,28 @@ class Post extends Model
             $this->decrement('likes_count');
         }
     }
+
+    public function savedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'saved_posts')->withTimestamps();
+    }
+
+    public function isSavedBy(User $user): bool
+    {
+        return $this->savedBy()->where('user_id', $user->id)->exists();
+    }
+
+    public function saveBy(User $user)
+    {
+        if (!$this->isSavedBy($user)) {
+            $this->savedBy()->attach($user->id);
+        }
+    }
+
+    public function unsaveBy(User $user)
+    {
+        if ($this->isSavedBy($user)) {
+            $this->savedBy()->detach($user->id);
+        }
+    }
 }

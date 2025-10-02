@@ -95,8 +95,12 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <button class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors" type="button" onclick="event.preventDefault();">
-                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button
+                                    wire:click="toggleSave({{ $post->id }})"
+                                    class="text-zinc-600 hover:text-blue-500 dark:text-zinc-400 dark:hover:text-blue-400 transition-colors {{ $this->isSaved($post->id) ? 'text-blue-500 dark:text-blue-400' : '' }}"
+                                    type="button"
+                                >
+                                    <svg class="h-6 w-6 {{ $this->isSaved($post->id) ? 'fill-current' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                     </svg>
                                 </button>

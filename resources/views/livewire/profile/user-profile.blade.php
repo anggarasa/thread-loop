@@ -45,30 +45,75 @@
             </div>
         </div>
 
+        <!-- Tabs (only show for own profile) -->
+        @if(auth()->check() && auth()->id() === $user->id)
+            <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 mb-6">
+                <div class="flex">
+                    <button
+                        wire:click="switchTab('posts')"
+                        class="flex-1 px-6 py-4 text-center font-medium transition-colors {{ $activeTab === 'posts' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300' }}"
+                    >
+                        Posts
+                    </button>
+                    <button
+                        wire:click="switchTab('saved')"
+                        class="flex-1 px-6 py-4 text-center font-medium transition-colors {{ $activeTab === 'saved' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300' }}"
+                    >
+                        Saved
+                    </button>
+                </div>
+            </div>
+        @endif
+
         <!-- Posts Grid -->
         <div class="grid grid-cols-3 gap-1">
-            @forelse($posts as $post)
-                <a href="{{ route('posts.show', $post) }}" wire:navigate class="aspect-square bg-zinc-200 dark:bg-zinc-700">
-                    @if($post->isImagePost() && $post->media_url)
-                        <img src="{{ $post->media_url }}" alt="Post" class="w-full h-full object-cover">
-                    @elseif($post->isVideoPost() && $post->media_url)
-                        <video class="w-full h-full object-cover" muted>
-                            <source src="{{ $post->media_url }}" type="video/mp4">
-                        </video>
-                    @else
-                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-zinc-800 dark:to-zinc-700">
-                            <div class="text-center">
-                                <div class="text-4xl mb-2">📝</div>
-                                <p class="text-xs text-zinc-600 dark:text-zinc-300">Text Post</p>
+            @if($activeTab === 'posts')
+                @forelse($posts as $post)
+                    <a href="{{ route('posts.show', $post) }}" wire:navigate class="aspect-square bg-zinc-200 dark:bg-zinc-700">
+                        @if($post->isImagePost() && $post->media_url)
+                            <img src="{{ $post->media_url }}" alt="Post" class="w-full h-full object-cover">
+                        @elseif($post->isVideoPost() && $post->media_url)
+                            <video class="w-full h-full object-cover" muted>
+                                <source src="{{ $post->media_url }}" type="video/mp4">
+                            </video>
+                        @else
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-zinc-800 dark:to-zinc-700">
+                                <div class="text-center">
+                                    <div class="text-4xl mb-2">📝</div>
+                                    <p class="text-xs text-zinc-600 dark:text-zinc-300">Text Post</p>
+                                </div>
                             </div>
-                        </div>
-                    @endif
-                </a>
-            @empty
-                <div class="col-span-3 text-center py-12">
-                    <p class="text-zinc-500 dark:text-zinc-400">No posts yet</p>
-                </div>
-            @endforelse
+                        @endif
+                    </a>
+                @empty
+                    <div class="col-span-3 text-center py-12">
+                        <p class="text-zinc-500 dark:text-zinc-400">No posts yet</p>
+                    </div>
+                @endforelse
+            @else
+                @forelse($savedPosts as $post)
+                    <a href="{{ route('posts.show', $post) }}" wire:navigate class="aspect-square bg-zinc-200 dark:bg-zinc-700">
+                        @if($post->isImagePost() && $post->media_url)
+                            <img src="{{ $post->media_url }}" alt="Saved Post" class="w-full h-full object-cover">
+                        @elseif($post->isVideoPost() && $post->media_url)
+                            <video class="w-full h-full object-cover" muted>
+                                <source src="{{ $post->media_url }}" type="video/mp4">
+                            </video>
+                        @else
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-zinc-800 dark:to-zinc-700">
+                                <div class="text-center">
+                                    <div class="text-4xl mb-2">📝</div>
+                                    <p class="text-xs text-zinc-600 dark:text-zinc-300">Text Post</p>
+                                </div>
+                            </div>
+                        @endif
+                    </a>
+                @empty
+                    <div class="col-span-3 text-center py-12">
+                        <p class="text-zinc-500 dark:text-zinc-400">No saved posts yet</p>
+                    </div>
+                @endforelse
+            @endif
         </div>
     </div>
 </div>

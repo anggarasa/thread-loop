@@ -178,4 +178,46 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->following()->count();
     }
+
+    /**
+     * Get the user's saved posts
+     */
+    public function savedPosts(): HasMany
+    {
+        return $this->hasMany(SavedPost::class);
+    }
+
+    /**
+     * Get the posts that this user has saved
+     */
+    public function savedPostsWithPost(): HasMany
+    {
+        return $this->hasMany(SavedPost::class)->with('post');
+    }
+
+    /**
+     * Check if this user has saved a specific post
+     */
+    public function hasSavedPost(Post $post): bool
+    {
+        return $this->savedPosts()->where('post_id', $post->id)->exists();
+    }
+
+    /**
+     * Save a post
+     */
+    public function savePost(Post $post): void
+    {
+        if (!$this->hasSavedPost($post)) {
+            $this->savedPosts()->create(['post_id' => $post->id]);
+        }
+    }
+
+    /**
+     * Unsave a post
+     */
+    public function unsavePost(Post $post): void
+    {
+        $this->savedPosts()->where('post_id', $post->id)->delete();
+    }
 }
