@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <link rel="icon" href="/assets/images/logo-ThreadLoop2-aplikasi.svg" sizes="any">
+    <link rel="icon" href="/assets/images/logo-ThreadLoop2-aplikasi.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/assets/images/logo-ThreadLoop2-aplikasi.svg">
+
     <title>{{ $post->user->username ?? $post->user->name }} - Thread Loop</title>
 
     <!-- Meta tags for social sharing -->
@@ -191,26 +195,97 @@
 
         function copyShareLink() {
             const url = window.location.href;
-            navigator.clipboard.writeText(url).then(function() {
-                // Show success message
-                const button = event.target.closest('button');
-                const originalText = button.innerHTML;
-                button.innerHTML = `
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>Copied!</span>
-                `;
-                button.classList.add('text-green-600', 'dark:text-green-400');
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
 
+            // Try modern clipboard API first (requires HTTPS)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function() {
+                    showSuccessMessage(button, originalText);
+                }).catch(function(err) {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopyTextToClipboard(url, button, originalText);
+                });
+            } else {
+                // Fallback for HTTP or older browsers
+                fallbackCopyTextToClipboard(url, button, originalText);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text, button, originalText) {
+            // Create a temporary textarea element
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showSuccessMessage(button, originalText);
+                } else {
+                    showErrorMessage(button, originalText, text);
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showErrorMessage(button, originalText, text);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function showSuccessMessage(button, originalText) {
+            button.innerHTML = `
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Copied!</span>
+            `;
+            button.classList.add('text-green-600', 'dark:text-green-400');
+            button.title = 'Link copied!';
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('text-green-600', 'dark:text-green-400');
+                button.title = 'Share post';
+            }, 2000);
+        }
+
+        function showErrorMessage(button, originalText, url) {
+            button.innerHTML = `
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <span>Click to copy</span>
+            `;
+            button.classList.add('text-red-600', 'dark:text-red-400');
+            button.title = 'Click to copy manually';
+
+            // Add click handler to copy manually
+            button.onclick = function(e) {
+                e.preventDefault();
+                prompt('Copy this link:', url);
                 setTimeout(() => {
                     button.innerHTML = originalText;
-                    button.classList.remove('text-green-600', 'dark:text-green-400');
-                }, 2000);
-            }).catch(function(err) {
-                console.error('Could not copy text: ', err);
-                alert('Could not copy link. Please copy manually: ' + url);
-            });
+                    button.classList.remove('text-red-600', 'dark:text-red-400');
+                    button.title = 'Share post';
+                    button.onclick = copyShareLink;
+                }, 3000);
+            };
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('text-red-600', 'dark:text-red-400');
+                button.title = 'Share post';
+            }, 5000);
         }
 
         // Handle images that are already loaded

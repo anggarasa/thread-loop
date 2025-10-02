@@ -234,26 +234,99 @@
     <script>
         function copyShareLink(postId) {
             const url = `{{ url('/share') }}/${postId}`;
-            navigator.clipboard.writeText(url).then(function() {
-                // Show success message
-                const button = event.target.closest('button');
-                const originalHTML = button.innerHTML;
-                button.innerHTML = `
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="text-sm font-semibold">Copied!</span>
-                `;
-                button.classList.add('text-green-600', 'dark:text-green-400');
+            const button = event.target.closest('button');
+            const originalHTML = button.innerHTML;
 
+            // Try modern clipboard API first (requires HTTPS)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function() {
+                    showSuccessMessage(button, originalHTML);
+                }).catch(function(err) {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopyTextToClipboard(url, button, originalHTML);
+                });
+            } else {
+                // Fallback for HTTP or older browsers
+                fallbackCopyTextToClipboard(url, button, originalHTML);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text, button, originalHTML) {
+            // Create a temporary textarea element
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showSuccessMessage(button, originalHTML);
+                } else {
+                    showErrorMessage(button, originalHTML, text);
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showErrorMessage(button, originalHTML, text);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function showSuccessMessage(button, originalHTML) {
+            button.innerHTML = `
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="text-sm font-semibold">Copied!</span>
+            `;
+            button.classList.add('text-green-600', 'dark:text-green-400');
+            button.title = 'Link copied!';
+
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('text-green-600', 'dark:text-green-400');
+                button.title = 'Share post';
+            }, 2000);
+        }
+
+        function showErrorMessage(button, originalHTML, url) {
+            button.innerHTML = `
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <span class="text-sm font-semibold">Click to copy</span>
+            `;
+            button.classList.add('text-red-600', 'dark:text-red-400');
+            button.title = 'Click to copy manually';
+
+            // Add click handler to copy manually
+            button.onclick = function(e) {
+                e.preventDefault();
+                prompt('Copy this link:', url);
                 setTimeout(() => {
                     button.innerHTML = originalHTML;
-                    button.classList.remove('text-green-600', 'dark:text-green-400');
-                }, 2000);
-            }).catch(function(err) {
-                console.error('Could not copy text: ', err);
-                alert('Could not copy link. Please copy manually: ' + url);
-            });
+                    button.classList.remove('text-red-600', 'dark:text-red-400');
+                    button.title = 'Share post';
+                    button.onclick = function() {
+                        copyShareLink(button.dataset.postId || button.closest('[onclick]').onclick.toString().match(/copyShareLink\((\d+)\)/)[1]);
+                    };
+                }, 3000);
+            };
+
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('text-red-600', 'dark:text-red-400');
+                button.title = 'Share post';
+            }, 5000);
         }
     </script>
 
