@@ -215,7 +215,7 @@
                     <!-- Grid Layout for Posts -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         @forelse($posts as $post)
-                            <div class="overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700">
+                            <a href="{{ route('posts.show', $post) }}" wire:navigate class="block overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow duration-200">
                                 <!-- Post Header -->
                                 <div class="flex items-center justify-between p-4">
                                     <div class="flex items-center space-x-3">
@@ -227,7 +227,7 @@
                                             </div>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <a href="{{ route('profile.show', $post->user->username) }}" wire:navigate class="font-semibold text-zinc-900 dark:text-white hover:underline">{{ Str::limit($post->user->username, 15, '...') ?? Str::limit($post->user->name, 15, '...') }}</a>
+                                            <h3 class="font-semibold text-zinc-900 dark:text-white">{{ Str::limit($post->user->username, 15, '...') ?? Str::limit($post->user->name, 15, '...') }}</h3>
                                             <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>
                                         </div>
                                     </div>
@@ -288,7 +288,7 @@
                                         <span>{{ $post->comments_count }} comments</span>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         @empty
                         <div class="col-span-full flex items-center justify-center min-h-[400px] w-full">
                             <div class="text-center">
@@ -321,12 +321,12 @@
                                         </div>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <h3 class="text-lg font-semibold text-zinc-900 dark:text-white truncate">
+                                        <a href="{{ route('profile.show', $user->username) }}" wire:navigate class="text-lg font-semibold text-zinc-900 dark:text-white truncate hover:underline">
                                             {{ $user->name }}
-                                        </h3>
-                                        <p class="text-sm text-zinc-500 dark:text-zinc-400 truncate">
+                                        </a>
+                                        <a href="{{ route('profile.show', $user->username) }}" wire:navigate class="text-sm text-zinc-500 dark:text-zinc-400 truncate hover:text-zinc-700 dark:hover:text-zinc-300">
                                             {{ '@' . $user->username }}
-                                        </p>
+                                        </a>
                                         <p class="text-sm text-zinc-500 dark:text-zinc-400 truncate">
                                             {{ $user->email }}
                                         </p>
@@ -338,7 +338,9 @@
                                         <div class="text-sm text-zinc-500 dark:text-zinc-400">
                                             {{ $user->posts()->count() }} posts
                                         </div>
-                                        @livewire('follow-button', ['user' => $user])
+                                        <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                                            Follow
+                                        </button>
                                     </div>
                                 </div>
                             </div>
