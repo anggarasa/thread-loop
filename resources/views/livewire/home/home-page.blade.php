@@ -1,8 +1,8 @@
 <!-- Main Grid Container -->
-<div class="mx-auto max-w-7xl px-4 py-6 lg:px-6">
+<div class="mx-auto max-w-7xl px-4 py-6 lg:px-6" data-page="home">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Content -->
-        <div class="lg:col-span-2">
+        <div class="col-span-1 lg:col-span-2">
             <!-- Main Feed -->
             <div class="space-y-6" id="posts-container">
                 @forelse($posts as $post)
@@ -221,7 +221,7 @@
         </div>
 
         <!-- Right Sidebar - Recommendations -->
-        <div class="lg:col-span-1">
+        <div class="hidden lg:block lg:col-span-1">
             <div class="top-6">
                 <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6">
                     <!-- User Profile Summary -->
@@ -258,7 +258,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <a href="{{ route('profile.show', $user->username) }}" wire:navigate class="text-sm font-semibold text-zinc-900 dark:text-white hover:underline">{{ $user->username ?? $user->name }}</a>
+                                        <a href="{{ route('profile.show', $user->username) }}" wire:navigate class="text-sm font-semibold text-zinc-900 dark:text-white hover:underline">{{ Str::limit($user->username, 16, '...') ?? Str::limit($user->name, 16, '...') }}</a>
                                         <p class="text-xs text-zinc-500 dark:text-zinc-400">Suggested for you</p>
                                     </div>
                                 </div>
@@ -316,48 +316,4 @@
     }
 </style>
 
-<!-- Infinite Scroll Script -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    let isLoading = false;
-    const postsContainer = document.getElementById('posts-container');
-
-    // Function to check if user is near bottom of page
-    function isNearBottom() {
-        return (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 1000);
-    }
-
-    // Function to load more posts
-    function loadMorePosts() {
-        if (isLoading) return;
-
-        // Check if Livewire component exists and has more posts
-        if (typeof Livewire !== 'undefined' && @this.hasMorePosts && !@this.loading) {
-            isLoading = true;
-            @this.call('loadMore').then(() => {
-                isLoading = false;
-            });
-        }
-    }
-
-    // Throttled scroll handler
-    let scrollTimeout;
-    window.addEventListener('scroll', function() {
-        if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
-        }
-
-        scrollTimeout = setTimeout(function() {
-            if (isNearBottom()) {
-                loadMorePosts();
-            }
-        }, 100);
-    });
-
-    // Also listen for Livewire updates to reset loading state
-    document.addEventListener('livewire:updated', function() {
-        isLoading = false;
-    });
-});
-</script>
 </div>
