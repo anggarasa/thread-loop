@@ -4,7 +4,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2">
             <!-- Main Feed -->
-            <div class="space-y-6">
+            <div class="space-y-6" id="posts-container">
                 @forelse($posts as $post)
                     <div class="overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
                         <!-- Post Header -->
@@ -195,10 +195,26 @@
                     </div>
                 @endforelse
 
-                <!-- Pagination -->
-                @if($posts->hasPages())
-                    <div class="mt-8">
-                        {{ $posts->links() }}
+                <!-- Loading indicator -->
+                @if($loading)
+                    <div class="flex justify-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+                @endif
+
+                <!-- Load more button -->
+                @if($hasMorePosts && !$loading)
+                    <div class="flex justify-center py-8">
+                        <button
+                            wire:click="loadMore"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            Load More Posts
+                        </button>
+                    </div>
+                @elseif(!$hasMorePosts)
+                    <div class="text-center py-8">
+                        <p class="text-zinc-500 dark:text-zinc-400">No more posts to load</p>
                     </div>
                 @endif
             </div>
@@ -299,4 +315,49 @@
         opacity: 1;
     }
 </style>
+
+<!-- Infinite Scroll Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let isLoading = false;
+    const postsContainer = document.getElementById('posts-container');
+
+    // Function to check if user is near bottom of page
+    function isNearBottom() {
+        return (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 1000);
+    }
+
+    // Function to load more posts
+    function loadMorePosts() {
+        if (isLoading) return;
+
+        // Check if Livewire component exists and has more posts
+        if (typeof Livewire !== 'undefined' && @this.hasMorePosts && !@this.loading) {
+            isLoading = true;
+            @this.call('loadMore').then(() => {
+                isLoading = false;
+            });
+        }
+    }
+
+    // Throttled scroll handler
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+        if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+        }
+
+        scrollTimeout = setTimeout(function() {
+            if (isNearBottom()) {
+                loadMorePosts();
+            }
+        }, 100);
+    });
+
+    // Also listen for Livewire updates to reset loading state
+    document.addEventListener('livewire:updated', function() {
+        isLoading = false;
+    });
+});
+</script>
 </div>

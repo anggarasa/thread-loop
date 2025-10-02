@@ -6,16 +6,17 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\Comment;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class HomePage extends Component
 {
-    use WithPagination;
-
     public $likedPosts = [];
     public $showComments = [];
     public $newComments = [];
     public $comments = [];
+    public $posts = [];
+    public $page = 1;
+    public $hasMorePosts = true;
+    public $loading = false;
 
     public function mount()
     {
@@ -27,6 +28,9 @@ class HomePage extends Component
         // Initialize comments visibility
         $this->showComments = [];
         $this->newComments = [];
+
+        // Load initial posts
+        $this->loadPosts();
     }
 
     public function toggleLike($postId)
@@ -93,13 +97,41 @@ class HomePage extends Component
         return in_array($postId, $this->likedPosts);
     }
 
+    public function loadPosts()
+    {
+        if ($this->loading || !$this->hasMorePosts) {
+            return;
+        }
+
+        $this->loading = true;
+
+        $newPosts = Post::with('user')
+            ->orderBy('created_at', 'desc')
+            ->skip(($this->page - 1) * 10)
+            ->limit(10)
+            ->get();
+
+        if ($newPosts->count() < 10) {
+            $this->hasMorePosts = false;
+        }
+
+        if ($this->page === 1) {
+            $this->posts = $newPosts;
+        } else {
+            $this->posts = $this->posts->concat($newPosts);
+        }
+
+        $this->page++;
+        $this->loading = false;
+    }
+
+    public function loadMore()
+    {
+        $this->loadPosts();
+    }
+
     public function render()
     {
-        // Fetch posts with user relationship, ordered by latest first
-        $posts = Post::with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
         // Fetch suggested users (excluding current user)
         $suggestedUsers = User::where('id', '!=', auth()->id())
             ->inRandomOrder()
@@ -107,7 +139,6 @@ class HomePage extends Component
             ->get();
 
         return view('livewire.home.home-page', [
-            'posts' => $posts,
             'suggestedUsers' => $suggestedUsers,
         ]);
     }
