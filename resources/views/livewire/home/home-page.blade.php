@@ -7,7 +7,7 @@
                 <!-- Main Feed -->
                 <div class="space-y-6">
                     @forelse($posts as $post)
-                        <a href="{{ route('posts.show', $post) }}" class="overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md transition-shadow block" wire:navigate>
+                        <div class="overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow">
                             <!-- Post Header -->
                             <div class="flex items-center justify-between p-4">
                                 <div class="flex items-center space-x-3">
@@ -32,46 +32,60 @@
 
                             @if($post->isImagePost() && $post->media_url)
                                 <!-- Post Image -->
-                                <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
-                                    <img src="{{ $post->media_url }}" alt="Post image" class="w-full h-full object-cover">
-                                </div>
+                                <a href="{{ route('posts.show', $post) }}" wire:navigate class="block">
+                                    <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                                        <img src="{{ $post->media_url }}" alt="Post image" class="w-full h-full object-cover">
+                                    </div>
+                                </a>
                             @elseif($post->isVideoPost() && $post->media_url)
                                 <!-- Post Video -->
-                                <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
-                                    <video
-                                        controls
-                                        muted
-                                        loop
-                                        playsinline
-                                        preload="metadata"
-                                        class="w-full h-full object-cover video-autoplay"
-                                        data-post-id="{{ $post->id }}"
-                                        onloadstart="this.style.opacity='0.8'"
-                                        oncanplay="this.style.opacity='1'"
-                                    >
-                                        <source src="{{ $post->media_url }}" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                </div>
+                                <a href="{{ route('posts.show', $post) }}" wire:navigate class="block">
+                                    <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                                        <video
+                                            controls
+                                            muted
+                                            loop
+                                            playsinline
+                                            preload="metadata"
+                                            class="w-full h-full object-cover video-autoplay"
+                                            data-post-id="{{ $post->id }}"
+                                            onloadstart="this.style.opacity='0.8'"
+                                            oncanplay="this.style.opacity='1'"
+                                        >
+                                            <source src="{{ $post->media_url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                </a>
                             @elseif($post->isTextPost() && $post->content)
                                 <!-- Text Post Content -->
-                                <div class="px-4 pb-4">
-                                    <p class="text-zinc-900 dark:text-white leading-relaxed">
-                                        {{ $post->content }}
-                                    </p>
-                                </div>
+                                <a href="{{ route('posts.show', $post) }}" wire:navigate class="block">
+                                    <div class="px-4 pb-4">
+                                        <p class="text-zinc-900 dark:text-white leading-relaxed">
+                                            {{ $post->content }}
+                                        </p>
+                                    </div>
+                                </a>
                             @endif
 
                             <!-- Post Actions -->
                             <div class="p-4">
                                 <div class="flex items-center justify-between mb-3">
                                     <div class="flex items-center space-x-4">
-                                        <button class="text-zinc-600 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 transition-colors" type="button" onclick="event.preventDefault();">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <button
+                                            wire:click="toggleLike({{ $post->id }})"
+                                            class="text-zinc-600 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 transition-colors {{ $this->isLiked($post->id) ? 'text-red-500 dark:text-red-400' : '' }}"
+                                            type="button"
+                                        >
+                                            <svg class="h-6 w-6 {{ $this->isLiked($post->id) ? 'fill-current' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                             </svg>
                                         </button>
-                                        <button class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors" type="button" onclick="event.preventDefault();">
+                                        <button
+                                            wire:click="toggleComments({{ $post->id }})"
+                                            class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+                                            type="button"
+                                        >
                                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                             </svg>
@@ -100,11 +114,43 @@
                                     </div>
                                 @endif
 
-                                <!-- Comments -->
+                                <!-- Comments Toggle -->
                                 @if($post->comments_count > 0)
-                                    <button class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300" type="button" onclick="event.preventDefault();">
-                                        View all {{ $post->comments_count }} {{ Str::plural('comment', $post->comments_count) }}
+                                    <button
+                                        wire:click="toggleComments({{ $post->id }})"
+                                        class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+                                        type="button"
+                                    >
+                                        @if(in_array($post->id, $showComments))
+                                            Hide comments
+                                        @else
+                                            View all {{ $post->comments_count }} {{ Str::plural('comment', $post->comments_count) }}
+                                        @endif
                                     </button>
+                                @endif
+
+                                <!-- Comments Section -->
+                                @if(in_array($post->id, $showComments))
+                                    <div class="mt-3 space-y-3">
+                                        @if(isset($comments[$post->id]))
+                                            @foreach($comments[$post->id] as $comment)
+                                                <div class="flex items-start space-x-3">
+                                                    <div class="h-6 w-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center flex-shrink-0">
+                                                        <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ substr($comment->user->name, 0, 1) }}</span>
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <div class="text-sm">
+                                                            <span class="font-semibold text-zinc-900 dark:text-white">{{ $comment->user->username ?? $comment->user->name }}</span>
+                                                            <span class="text-zinc-900 dark:text-white ml-2">{{ $comment->content }}</span>
+                                                        </div>
+                                                        <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                                            {{ $comment->created_at->diffForHumans() }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                    </div>
                                 @endif
 
                                 <!-- Add Comment -->
@@ -113,12 +159,24 @@
                                         <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ substr(auth()->user()->name, 0, 1) }}</span>
                                     </div>
                                     <div class="flex-1">
-                                        <input type="text" placeholder="Add a comment..." class="w-full bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400 focus:outline-none" onclick="event.stopPropagation();">
+                                        <input
+                                            type="text"
+                                            wire:model="newComments.{{ $post->id }}"
+                                            wire:keydown.enter="addComment({{ $post->id }})"
+                                            placeholder="Add a comment..."
+                                            class="w-full bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400 focus:outline-none"
+                                        >
                                     </div>
-                                    <button class="text-sm font-semibold text-blue-500 hover:text-blue-600" type="button" onclick="event.preventDefault();event.stopPropagation();">Post</button>
+                                    <button
+                                        wire:click="addComment({{ $post->id }})"
+                                        class="text-sm font-semibold text-blue-500 hover:text-blue-600"
+                                        type="button"
+                                    >
+                                        Post
+                                    </button>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     @empty
                         <!-- No Posts State -->
                         <div class="text-center py-12">
