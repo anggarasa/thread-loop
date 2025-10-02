@@ -53,7 +53,7 @@
                                     <img
                                         src="{{ $post->media_url }}"
                                         alt="Post image"
-                                        class="w-full h-auto object-cover media-content"
+                                        class="w-full h-auto media-content"
                                         onload="adjustCardSize(this)"
                                     >
                                 </div>
@@ -65,7 +65,7 @@
                                         loop
                                         playsinline
                                         preload="metadata"
-                                        class="w-full h-auto object-cover video-autoplay media-content"
+                                        class="w-full h-auto video-autoplay media-content"
                                         data-post-id="{{ $post->id }}"
                                         onloadedmetadata="adjustCardSize(this)"
                                     >
@@ -277,6 +277,8 @@
     .media-container {
         position: relative;
         overflow: hidden;
+        min-height: 300px;
+        width: 100%;
     }
 
     .media-content {
@@ -301,14 +303,23 @@
         margin: 0 auto;
     }
 
-    /* Landscape media - wider card */
+    /* Landscape media - wider card with proper sizing */
     .media-container[data-aspect="landscape"] {
-        max-height: 60vh;
+        max-height: 70vh;
+        min-height: 400px;
+        width: 100%;
     }
 
     .media-container[data-aspect="landscape"] .media-content {
-        max-height: 60vh;
+        max-height: 70vh;
+        min-height: 400px;
         width: 100%;
+        object-fit: cover;
+    }
+
+    /* Landscape video - no object-cover as requested */
+    .media-container[data-aspect="landscape"][data-media-type="video"] .media-content {
+        object-fit: contain;
     }
 
     /* Square media */
@@ -432,7 +443,16 @@ function adjustCardSize(mediaElement) {
     // Adjust card height based on media
     if (card) {
         const mediaHeight = mediaElement.offsetHeight;
-        const minHeight = Math.min(mediaHeight + 200, window.innerHeight * 0.8);
+        let minHeight;
+
+        if (aspectRatio > 1.2) {
+            // Landscape - ensure minimum height for better viewing
+            minHeight = Math.max(400, Math.min(mediaHeight + 200, window.innerHeight * 0.7));
+        } else {
+            // Portrait or square
+            minHeight = Math.min(mediaHeight + 200, window.innerHeight * 0.8);
+        }
+
         card.style.minHeight = minHeight + 'px';
     }
 }
