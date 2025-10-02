@@ -3,6 +3,7 @@
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ShareController;
 use App\Livewire\Home\HomePage;
 use App\Livewire\Posts\PostDetail;
 use App\Livewire\Profile\UserProfile;
@@ -19,6 +20,9 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/profile/{username}', UserProfile::class)->name('profile.show');
+
+// Public share route - accessible without authentication
+Route::get('/share/{post}', [ShareController::class, 'show'])->name('posts.share');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', HomePage::class)->name('homePage');
