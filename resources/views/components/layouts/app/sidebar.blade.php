@@ -23,7 +23,15 @@
                     <flux:navlist.item icon="pencil" :href="route('posts.create')" :current="request()->routeIs('posts.create')" wire:navigate class="mt-3">{{ __('Post') }}</flux:navlist.item>
 
                     <!-- Notification -->
-                    <flux:navlist.item icon="bell" :href="route('notifications')" :current="request()->routeIs('notifications')" wire:navigate class="mt-3">{{ __('Notification') }}</flux:navlist.item>
+                    <flux:navlist.item icon="bell" :href="route('notifications')" :current="request()->routeIs('notifications')" wire:navigate class="mt-3">
+                        {{ __('Notification') }}
+                        @php($__unread = auth()->check() ? auth()->user()->unreadNotifications()->count() : 0)
+                        @if($__unread > 0)
+                            <span class="ml-2 inline-flex items-center justify-center rounded-full bg-red-600 text-white text-xs font-semibold h-5 px-2">
+                                {{ $__unread }}
+                            </span>
+                        @endif
+                    </flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
