@@ -241,6 +241,7 @@
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(url).then(function() {
                     showSuccessMessage(button, originalHTML);
+                    fetch(`{{ url('/share') }}/${postId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
                 }).catch(function(err) {
                     console.error('Clipboard API failed:', err);
                     fallbackCopyTextToClipboard(url, button, originalHTML);
@@ -270,6 +271,7 @@
                 const successful = document.execCommand('copy');
                 if (successful) {
                     showSuccessMessage(button, originalHTML);
+                    fetch(`{{ url('/share') }}/${postId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
                 } else {
                     showErrorMessage(button, originalHTML, text);
                 }

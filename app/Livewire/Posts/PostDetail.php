@@ -4,6 +4,8 @@ namespace App\Livewire\Posts;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\PostCommented;
+use App\Notifications\PostLiked;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -34,6 +36,10 @@ class PostDetail extends Component
         } else {
             $this->post->like(auth()->user());
             $this->likesCount++;
+            // Notify post owner of like (avoid self-notification)
+            if ($this->post->user_id !== auth()->id()) {
+                $this->post->user->notify(new PostLiked(auth()->user(), $this->post));
+            }
         }
         $this->isLiked = !$this->isLiked;
     }
@@ -44,12 +50,16 @@ class PostDetail extends Component
             'newComment' => 'required|string|max:500',
         ]);
 
-        $this->post->comments()->create([
+        $comment = $this->post->comments()->create([
             'user_id' => auth()->id(),
             'content' => $this->newComment,
         ]);
 
         $this->post->increment('comments_count');
+        // Notify post owner of comment (avoid self-notification)
+        if ($this->post->user_id !== auth()->id()) {
+            $this->post->user->notify(new PostCommented(auth()->user(), $this->post, $comment));
+        }
         $this->newComment = '';
         $this->showComments = true;
     }

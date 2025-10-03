@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Notifications\PostLinkCopied;
 use Illuminate\Http\Request;
 
 class ShareController extends Controller
@@ -21,5 +22,17 @@ class ShareController extends Controller
         }
 
         return view('pages.share.post-share', compact('post'));
+    }
+
+    /**
+     * Record that a user copied a post link to clipboard
+     */
+    public function copied(Request $request, Post $post)
+    {
+        if (auth()->check() && $post->user_id !== auth()->id()) {
+            $post->user->notify(new PostLinkCopied(auth()->user(), $post));
+        }
+
+        return response()->json(['success' => true]);
     }
 }

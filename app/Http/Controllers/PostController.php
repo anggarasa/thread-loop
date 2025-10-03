@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use App\Notifications\FollowedUserPosted;
 
 class PostController extends Controller
 {
@@ -64,7 +66,18 @@ class PostController extends Controller
             }
 
             // Create post in database
-            Post::create($postData);
+            $post = Post::create($postData);
+
+            // Notify followers that this user posted something new
+            /** @var User $author */
+            $author = Auth::user();
+            $followerIds = $author->followers()->pluck('follower_id');
+            if ($followerIds->isNotEmpty()) {
+                $followers = User::whereIn('id', $followerIds)->get();
+                foreach ($followers as $follower) {
+                    $follower->notify(new FollowedUserPosted($author, $post));
+                }
+            }
 
             return response()->json([
                 'success' => true,

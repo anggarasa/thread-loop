@@ -12,6 +12,7 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
+use App\Livewire\Notifications\NotificationList;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -23,10 +24,13 @@ Route::get('/profile/{username}', UserProfile::class)->name('profile.show');
 
 // Public share route - accessible without authentication
 Route::get('/share/{post}', [ShareController::class, 'show'])->name('posts.share');
+// Copy event endpoint (auth optional). If authed and not owner, notify owner
+Route::post('/share/{post}/copied', [ShareController::class, 'copied'])->name('posts.share.copied');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', HomePage::class)->name('homePage');
     Route::get('/search', SearchPage::class)->name('searchPage');
+    Route::get('/notifications', NotificationList::class)->name('notifications');
     Route::get('/posts', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::get('/posts/{post}', PostDetail::class)->name('posts.show');

@@ -5,6 +5,8 @@ namespace App\Livewire\Home;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Comment;
+use App\Notifications\PostCommented;
+use App\Notifications\PostLiked;
 use Livewire\Component;
 
 class HomePage extends Component
@@ -49,6 +51,9 @@ class HomePage extends Component
         } else {
             $post->like(auth()->user());
             $this->likedPosts[] = $postId;
+            if ($post->user_id !== auth()->id()) {
+                $post->user->notify(new PostLiked(auth()->user(), $post));
+            }
         }
     }
 
@@ -85,6 +90,9 @@ class HomePage extends Component
         ]);
 
         $post->increment('comments_count');
+        if ($post->user_id !== auth()->id()) {
+            $post->user->notify(new PostCommented(auth()->user(), $post, $comment));
+        }
 
         // Clear the input
         $this->newComments[$postId] = '';

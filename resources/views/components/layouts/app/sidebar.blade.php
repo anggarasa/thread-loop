@@ -23,7 +23,7 @@
                     <flux:navlist.item icon="pencil" :href="route('posts.create')" :current="request()->routeIs('posts.create')" wire:navigate class="mt-3">{{ __('Post') }}</flux:navlist.item>
 
                     <!-- Notification -->
-                    <flux:navlist.item icon="bell" :href="route('homePage')" :current="request()->routeIs('homePage')" wire:navigate class="mt-3">{{ __('Notification') }}</flux:navlist.item>
+                    <flux:navlist.item icon="bell" :href="route('notifications')" :current="request()->routeIs('notifications')" wire:navigate class="mt-3">{{ __('Notification') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
