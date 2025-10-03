@@ -1,8 +1,16 @@
 <div>
-    @auth
     <div wire:poll.10s="check" class="fixed inset-0 pointer-events-none z-[9999]">
         @if($show)
-            <div class="absolute bottom-6 right-6 pointer-events-auto">
+            <div class="absolute bottom-6 right-6 pointer-events-auto"
+                 x-data="{ show: true }"
+                 x-show="show"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform translate-x-full"
+                 x-transition:enter-end="opacity-100 transform translate-x-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 transform translate-x-0"
+                 x-transition:leave-end="opacity-0 transform translate-x-full"
+                 x-init="setTimeout(() => { show = false; $wire.set('show', false); }, 5000)">
                 <div class="max-w-sm w-[360px] rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-hidden">
                     <div class="px-4 py-3 flex items-start gap-3">
                         <div class="h-8 w-8 rounded-full bg-blue-600/10 flex items-center justify-center">
@@ -24,5 +32,4 @@
             </div>
         @endif
     </div>
-    @endauth
 </div>
