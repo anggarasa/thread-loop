@@ -40,6 +40,31 @@ class NotificationList extends Component
         }
     }
 
+    public function view(string $id)
+    {
+        /** @var DatabaseNotification|null $notification */
+        $notification = auth()->user()->notifications()->where('id', $id)->first();
+        if (!$notification) {
+            return null;
+        }
+
+        if (is_null($notification->read_at)) {
+            $notification->markAsRead();
+            $this->dispatch('notification-read');
+        }
+
+        $data = $notification->data ?? [];
+        if (!empty($data['post_id'])) {
+            return $this->redirect(route('posts.show', $data['post_id']), navigate: true);
+        }
+
+        if (!empty($data['actor_username'])) {
+            return $this->redirect(route('profile.show', $data['actor_username']), navigate: true);
+        }
+
+        return null;
+    }
+
     public function render()
     {
         $notifications = auth()->user()

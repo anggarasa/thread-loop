@@ -30,9 +30,9 @@
                 </div>
                 <div class="flex items-center gap-2">
                     @if(($data['post_id'] ?? null))
-                        <a href="{{ route('posts.show', $data['post_id']) }}" wire:navigate class="text-xs text-blue-600 hover:text-blue-700">View</a>
+                        <button wire:click="view('{{ $notification->id }}')" class="text-xs text-blue-600 hover:text-blue-700">View</button>
                     @elseif(($data['actor_username'] ?? null))
-                        <a href="{{ route('profile.show', $data['actor_username']) }}" wire:navigate class="text-xs text-blue-600 hover:text-blue-700">View</a>
+                        <button wire:click="view('{{ $notification->id }}')" class="text-xs text-blue-600 hover:text-blue-700">View</button>
                     @endif
                     @if($isUnread)
                         <button wire:click="markAsRead('{{ $notification->id }}')" class="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200">Mark as read</button>
