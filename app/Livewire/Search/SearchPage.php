@@ -142,13 +142,14 @@ class SearchPage extends Component
         $this->loadInitialUsers();
     }
 
-    public function loadMore()
+    public function loadMorePosts()
     {
-        if ($this->activeTab === 'posts') {
-            $this->loadPosts();
-        } else {
-            $this->loadUsers();
-        }
+        $this->loadPosts();
+    }
+
+    public function loadMoreUsers()
+    {
+        $this->loadUsers();
     }
 
     private function loadInitialPosts()
