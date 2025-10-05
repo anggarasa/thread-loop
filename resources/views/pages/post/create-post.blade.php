@@ -273,12 +273,11 @@
             previewVideo.classList.remove('portrait-preview', 'landscape-preview', 'square-preview');
         }
 
-        // AJAX Form submission
+        // Regular Form submission with client-side validation
         document.getElementById('create-post-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-
             const content = textarea.value.trim();
             if (!content) {
+                e.preventDefault();
                 textarea.focus();
                 textarea.classList.add('border-red-500', 'dark:border-red-400');
                 showError('Please enter some content for your post.');
@@ -288,80 +287,15 @@
             // Check if media is selected
             const mediaInput = document.getElementById('media');
             if (!mediaInput.files || mediaInput.files.length === 0) {
+                e.preventDefault();
                 showError('Please select an image or video to upload.');
                 return;
             }
 
-            // Show loading overlay
+            // Show loading overlay for better UX
             showLoadingOverlay();
 
-            // Prepare form data BEFORE disabling form
-            const formData = new FormData(this);
-
-            // Ensure content is included in form data
-            if (!formData.has('content') || formData.get('content') === '') {
-                console.log('Content not found in form data, adding manually:', content);
-                formData.set('content', content);
-            } else {
-                console.log('Content found in form data:', formData.get('content'));
-            }
-
-            // Debug: Log form data to console
-            console.log('Form data being sent:');
-            for (let [key, value] of formData.entries()) {
-                console.log(key, value);
-            }
-
-            // Disable form elements AFTER preparing form data
-            disableForm();
-
-            // Submit via AJAX
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            console.log('CSRF Token:', csrfToken);
-
-            fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                hideLoadingOverlay();
-
-                if (data.success) {
-                    showSuccess(data.message);
-                    // Redirect after showing success message
-                    setTimeout(() => {
-                        window.location.href = data.redirect_url;
-                    }, 1500);
-                } else {
-                    // Handle validation errors
-                    if (data.errors) {
-                        let errorMessage = 'Validation failed:\n';
-                        for (let field in data.errors) {
-                            errorMessage += `• ${data.errors[field].join(', ')}\n`;
-                        }
-                        showError(errorMessage);
-                    } else {
-                        showError(data.message || 'Failed to create post. Please try again.');
-                    }
-                    enableForm();
-                }
-            })
-            .catch(error => {
-                hideLoadingOverlay();
-                enableForm();
-                console.error('Error:', error);
-                showError('An error occurred. Please try again.');
-            });
+            // Let the form submit normally - no preventDefault()
         });
 
         // Loading overlay functions

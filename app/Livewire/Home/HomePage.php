@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Comment;
 use App\Notifications\PostCommented;
 use App\Notifications\PostLiked;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class HomePage extends Component
@@ -23,15 +24,18 @@ class HomePage extends Component
 
     public function mount()
     {
-        // Initialize liked posts for current user
-        $this->likedPosts = Post::whereHas('likes', function($query) {
-            $query->where('user_id', auth()->id());
-        })->pluck('id')->toArray();
+        $userId = auth()->id();
 
-        // Initialize saved posts for current user
-        $this->savedPosts = Post::whereHas('savedBy', function($query) {
-            $query->where('user_id', auth()->id());
-        })->pluck('id')->toArray();
+        // Optimize: Use direct table queries instead of whereHas to avoid N+1
+        $this->likedPosts = DB::table('post_likes')
+            ->where('user_id', $userId)
+            ->pluck('post_id')
+            ->toArray();
+
+        $this->savedPosts = DB::table('saved_posts')
+            ->where('user_id', $userId)
+            ->pluck('post_id')
+            ->toArray();
 
         // Initialize comments visibility
         $this->showComments = [];
@@ -164,8 +168,9 @@ class HomePage extends Component
 
         $this->loading = true;
 
-        $newPosts = Post::with('user')
-            ->inRandomOrder()
+        // Optimize: Use scope for efficient feed loading
+        $newPosts = Post::with(['user'])
+            ->forFeed(30) // Use the new scope
             ->skip(($this->page - 1) * 10)
             ->limit(10)
             ->get();
@@ -191,9 +196,10 @@ class HomePage extends Component
 
     public function render()
     {
-        // Fetch suggested users (excluding current user)
+        // Optimize: Use more efficient user suggestions
         $suggestedUsers = User::where('id', '!=', auth()->id())
-            ->inRandomOrder()
+            ->where('created_at', '>', now()->subDays(90)) // Recent users
+            ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 

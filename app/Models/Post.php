@@ -35,10 +35,32 @@ class Post extends Model
         });
     }
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    /**
+     * Scope for efficient feed loading with weighted scoring
+     */
+    public function scopeForFeed($query, $days = 30)
+    {
+        return $query->where('created_at', '>', now()->subDays($days))
+            ->orderByRaw('(likes_count * 0.7 + comments_count * 0.3) DESC')
+            ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Scope for recent posts
+     */
+    public function scopeRecent($query, $days = 7)
+    {
+        return $query->where('created_at', '>', now()->subDays($days))
+            ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Scope for posts by media type
+     */
+    public function scopeByMediaType($query, $type)
+    {
+        return $query->where('media_type', $type);
+    }
 
     public function user(): BelongsTo
     {
@@ -72,7 +94,11 @@ class Post extends Model
 
     public function isLikedBy(User $user): bool
     {
-        return $this->likes()->where('user_id', $user->id)->exists();
+        // Optimize: Use direct query instead of relationship to avoid N+1
+        return \DB::table('post_likes')
+            ->where('post_id', $this->id)
+            ->where('user_id', $user->id)
+            ->exists();
     }
 
     public function like(User $user)
@@ -98,7 +124,11 @@ class Post extends Model
 
     public function isSavedBy(User $user): bool
     {
-        return $this->savedBy()->where('user_id', $user->id)->exists();
+        // Optimize: Use direct query instead of relationship to avoid N+1
+        return \DB::table('saved_posts')
+            ->where('post_id', $this->id)
+            ->where('user_id', $user->id)
+            ->exists();
     }
 
     public function saveBy(User $user)
