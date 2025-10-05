@@ -13,12 +13,14 @@ use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
 use App\Livewire\Notifications\NotificationList;
+use App\Livewire\Guest\GuestHomePage;
+use App\Livewire\Guest\GuestSearchPage;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// Guest routes (accessible without authentication)
+Route::get('/', GuestHomePage::class)->name('guest.home');
+Route::get('/search', GuestSearchPage::class)->name('guest.search');
 
 Route::get('/profile/{username}', UserProfile::class)->name('profile.show');
 
@@ -29,7 +31,7 @@ Route::post('/share/{post}/copied', [ShareController::class, 'copied'])->name('p
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', HomePage::class)->name('homePage');
-    Route::get('/search', SearchPage::class)->name('searchPage');
+    Route::get('/app/search', SearchPage::class)->name('searchPage');
     Route::get('/notifications', NotificationList::class)->name('notifications');
     Route::get('/posts', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
