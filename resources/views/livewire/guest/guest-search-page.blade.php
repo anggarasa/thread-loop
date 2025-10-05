@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-page="search">
     <!-- Search Header -->
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
@@ -132,87 +132,106 @@
         <!-- Search Results -->
         @if($activeTab === 'posts')
             @if($posts->count() > 0)
-                <div class="space-y-6">
+                <!-- Grid Layout for Posts -->
+                <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($posts as $post)
-                        <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm">
+                        <a href="{{ route('login') }}" wire:navigate class="block overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow duration-200">
                             <!-- Post Header -->
-                            <div class="flex items-center space-x-3 mb-4">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                    <span class="text-white text-sm font-semibold">{{ $post->user->initials() }}</span>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center space-x-2">
-                                        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                                            {{ $post->user->name }}
-                                        </h3>
-                                        <span class="text-sm text-zinc-500 dark:text-zinc-400">
-                                            @{{ $post->user->username }}
-                                        </span>
+                            <div class="flex items-center justify-between p-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
+                                        <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
+                                            <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                                                <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-300">{{ $post->user->initials() }}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <p class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        {{ $post->created_at->diffForHumans() }}
-                                    </p>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-semibold text-zinc-900 dark:text-white">{{ Str::limit($post->user->username, 15, '...') ?? Str::limit($post->user->name, 15, '...') }}</h3>
+                                        <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Post Content -->
-                            <div class="mb-4">
-                                <p class="text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap">{{ $post->content }}</p>
-                            </div>
-
-                            <!-- Post Media -->
-                            @if($post->media_url)
-                                <div class="mb-4">
-                                    @if($post->media_type === 'image')
-                                        <img src="{{ $post->media_url }}"
-                                             alt="Post image"
-                                             class="max-w-full h-auto rounded-lg">
-                                    @elseif($post->media_type === 'video')
-                                        <video controls class="max-w-full h-auto rounded-lg">
-                                            <source src="{{ $post->media_url }}" type="video/mp4">
-                                            {{ __('Your browser does not support the video tag.') }}
-                                        </video>
-                                    @endif
+                            @if($post->isImagePost() && $post->media_url)
+                                <!-- Post Image -->
+                                <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                                    <img src="{{ $post->media_url }}" alt="Post image" class="w-full h-full object-cover">
+                                </div>
+                            @elseif($post->isVideoPost() && $post->media_url)
+                                <!-- Post Video -->
+                                <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                                    <video controls class="w-full h-full object-cover">
+                                        <source src="{{ $post->media_url }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            @elseif($post->isTextPost() && $post->content)
+                                <!-- Post Content -->
+                                <div class="px-4 pb-4">
+                                    <p class="text-zinc-900 dark:text-white leading-relaxed line-clamp-3">
+                                        {{ $post->content }}
+                                    </p>
                                 </div>
                             @endif
 
-                            <!-- Post Stats -->
-                            <div class="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-700 pt-4">
-                                <div class="flex items-center space-x-4">
-                                    <span class="flex items-center space-x-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            <!-- Post Actions -->
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-4">
+                                        <button class="text-zinc-600 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 transition-colors">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                            </svg>
+                                        </button>
+                                        <button class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                            </svg>
+                                        </button>
+                                        <button class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <button class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
+                                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                         </svg>
-                                        <span>{{ $post->likes_count }}</span>
-                                    </span>
-                                    <span class="flex items-center space-x-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                                        </svg>
-                                        <span>{{ $post->comments_count }}</span>
-                                    </span>
+                                    </button>
                                 </div>
-                                <div class="text-xs">
-                                    <a href="{{ route('login') }}"
-                                       class="text-blue-600 dark:text-blue-400 hover:underline"
-                                       wire:navigate>
-                                        {{ __('Sign in to interact') }}
-                                    </a>
+
+                                <!-- Post Stats -->
+                                <div class="flex items-center space-x-4 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <span>{{ $post->likes_count }}</span>
+                                    <span>{{ $post->comments_count }}</span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
 
+                <!-- Loading indicator -->
+                @if($loading)
+                    <div class="col-span-full flex justify-center py-8"></div>
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+                @endif
+
                 <!-- Load More Button -->
-                @if($hasMorePosts)
-                    <div class="text-center mt-8">
-                        <button wire:click="loadMore"
-                                wire:loading.attr="disabled"
-                                class="inline-flex items-center px-6 py-3 border border-zinc-300 dark:border-zinc-600 text-base font-medium rounded-md text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50">
-                            <span wire:loading.remove wire:target="loadMore">{{ __('Load More Posts') }}</span>
-                            <span wire:loading wire:target="loadMore">{{ __('Loading...') }}</span>
-                        </button>
+                @if($hasMorePosts && !$loading && $posts->count() > 0)
+                    <div class="col-span-full flex justify-center py-8">
+                        <flux:button
+                            wire:click="loadMore"
+                            variant="primary"
+                            class="px-6 py-2">
+                            {{ __('Load More Posts') }}
+                        </flux:button>
+                    </div>
+                @elseif(!$hasMorePosts && $posts->count() > 0)
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-zinc-500 dark:text-zinc-400">{{ __('No more posts to load') }}</p>
                     </div>
                 @endif
             @else
@@ -226,41 +245,68 @@
             @endif
         @else
             @if($users->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="users-container" class="space-y-6">
                     @foreach($users as $user)
-                        <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm">
-                            <div class="text-center">
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
-                                    <span class="text-white text-lg font-semibold">{{ $user->initials() }}</span>
+                        <div class="overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow duration-200">
+                            <div class="p-6">
+                                <div class="flex items-center space-x-4">
+                                    <div class="h-16 w-16 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
+                                        <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
+                                            <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                                                <span class="text-xl font-semibold text-zinc-600 dark:text-zinc-300">{{ $user->initials() }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <a href="{{ route('login') }}" wire:navigate class="text-lg font-semibold text-zinc-900 dark:text-white truncate hover:underline">
+                                            {{ $user->name }}
+                                        </a>
+                                        <a href="{{ route('login') }}" wire:navigate class="text-sm text-zinc-500 dark:text-zinc-400 truncate hover:text-zinc-700 dark:hover:text-zinc-300">
+                                            {{ '@' . $user->username }}
+                                        </a>
+                                        <p class="text-sm text-zinc-500 dark:text-zinc-400 truncate">
+                                            {{ $user->email }}
+                                        </p>
+                                        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                            Joined {{ $user->created_at->format('M Y') }}
+                                        </p>
+                                    </div>
+                                    <div class="flex flex-col items-end space-y-2">
+                                        <div class="text-sm text-zinc-500 dark:text-zinc-400">
+                                            {{ $user->posts()->count() }} posts
+                                        </div>
+                                        <a href="{{ route('login') }}"
+                                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
+                                           wire:navigate>
+                                            {{ __('Follow') }}
+                                        </a>
+                                    </div>
                                 </div>
-                                <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
-                                    {{ $user->name }}
-                                </h3>
-                                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                                    @{{ $user->username }}
-                                </p>
-                                <div class="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
-                                    {{ __('Joined') }} {{ $user->created_at->diffForHumans() }}
-                                </div>
-                                <a href="{{ route('login') }}"
-                                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
-                                   wire:navigate>
-                                    {{ __('Follow') }}
-                                </a>
                             </div>
                         </div>
                     @endforeach
                 </div>
 
+                <!-- Loading indicator -->
+                @if($loading)
+                    <div class="flex justify-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+                @endif
+
                 <!-- Load More Button -->
-                @if($hasMoreUsers)
-                    <div class="text-center mt-8">
-                        <button wire:click="loadMore"
-                                wire:loading.attr="disabled"
-                                class="inline-flex items-center px-6 py-3 border border-zinc-300 dark:border-zinc-600 text-base font-medium rounded-md text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50">
-                            <span wire:loading.remove wire:target="loadMore">{{ __('Load More People') }}</span>
-                            <span wire:loading wire:target="loadMore">{{ __('Loading...') }}</span>
-                        </button>
+                @if($hasMoreUsers && !$loading && $users->count() > 0)
+                    <div class="flex justify-center py-8">
+                        <flux:button
+                            wire:click="loadMore"
+                            variant="primary"
+                            class="px-6 py-2">
+                            {{ __('Load More Users') }}
+                        </flux:button>
+                    </div>
+                @elseif(!$hasMoreUsers && $users->count() > 0)
+                    <div class="text-center py-8">
+                        <p class="text-zinc-500 dark:text-zinc-400">{{ __('No more users to load') }}</p>
                     </div>
                 @endif
             @else

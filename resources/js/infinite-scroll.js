@@ -36,11 +36,7 @@ function loadMorePosts() {
             if (component && !component.loading) {
                 // Check if we have more posts (for home page) or more posts/users (for search page)
                 const hasMore =
-                    component.hasMorePosts ||
-                    (component.hasMorePosts !== undefined &&
-                        component.hasMorePosts) ||
-                    (component.hasMoreUsers !== undefined &&
-                        component.hasMoreUsers);
+                    component.hasMorePosts || component.hasMoreUsers;
 
                 if (hasMore) {
                     isLoading = true;
@@ -61,11 +57,7 @@ function loadMorePosts() {
                 if (!component.loading) {
                     // Check if we have more posts (for home page) or more posts/users (for search page)
                     const hasMore =
-                        component.hasMorePosts ||
-                        (component.hasMorePosts !== undefined &&
-                            component.hasMorePosts) ||
-                        (component.hasMoreUsers !== undefined &&
-                            component.hasMoreUsers);
+                        component.hasMorePosts || component.hasMoreUsers;
 
                     if (hasMore) {
                         isLoading = true;
