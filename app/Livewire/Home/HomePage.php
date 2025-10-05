@@ -43,16 +43,43 @@ class HomePage extends Component
 
     public function toggleLike($postId)
     {
+        $user = auth()->user();
+        if (!$user) {
+            return;
+        }
+
         $post = Post::findOrFail($postId);
 
-        if (in_array($postId, $this->likedPosts)) {
-            $post->unlike(auth()->user());
-            $this->likedPosts = array_diff($this->likedPosts, [$postId]);
+        // Check the actual database state instead of relying on the array
+        $isCurrentlyLiked = $post->isLikedBy($user);
+
+        if ($isCurrentlyLiked) {
+            // Post is currently liked, so unlike it
+            $post->unlike($user);
+            // Remove from likedPosts array
+            $this->likedPosts = array_values(array_diff($this->likedPosts, [$postId]));
         } else {
-            $post->like(auth()->user());
+            // Post is not currently liked, so like it
+            $post->like($user);
+            // Add to likedPosts array
             $this->likedPosts[] = $postId;
-            if ($post->user_id !== auth()->id()) {
-                $post->user->notify(new PostLiked(auth()->user(), $post));
+            // Send notification if not self-liking
+            if ($post->user_id !== $user->id) {
+                $post->user->notify(new PostLiked($user, $post));
+            }
+        }
+
+        // Refresh the post in the posts collection to update the count
+        $this->refreshPostInCollection($postId);
+    }
+
+    private function refreshPostInCollection($postId)
+    {
+        // Find and refresh the post in the posts collection
+        foreach ($this->posts as $index => $post) {
+            if ($post->id == $postId) {
+                $this->posts[$index] = Post::with('user')->find($postId);
+                break;
             }
         }
     }

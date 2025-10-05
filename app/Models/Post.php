@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Post extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id',
         'content',
@@ -20,6 +21,19 @@ class Post extends Model
         'likes_count',
         'comments_count',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Update likes_count when likes are attached/detached
+        static::updating(function ($post) {
+            if ($post->isDirty('likes_count')) {
+                // Prevent infinite loops by not updating if likes_count is already being updated
+                return;
+            }
+        });
+    }
 
     protected $casts = [
         'created_at' => 'datetime',

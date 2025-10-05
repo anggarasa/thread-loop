@@ -73,10 +73,10 @@
                                 <div class="flex items-center space-x-4">
                                     <button
                                         wire:click="toggleLike({{ $post->id }})"
-                                        class="text-zinc-600 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 transition-colors {{ $this->isLiked($post->id) ? 'text-red-500 dark:text-red-400' : '' }}"
+                                        class="transition-colors {{ $this->isLiked($post->id) ? 'text-red-500 dark:text-red-400' : 'text-zinc-600 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400' }}"
                                         type="button"
                                     >
-                                        <svg class="h-6 w-6 {{ $this->isLiked($post->id) ? 'fill-current text-red-500 dark:text-red-400' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="h-6 w-6 {{ $this->isLiked($post->id) ? 'fill-current' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                         </svg>
                                     </button>
