@@ -10,9 +10,10 @@ class UserProfile extends Component
     public User $user;
     public $posts;
     public $savedPosts;
+    public $likedPosts;
     public $followersCount;
     public $followingCount;
-    public $activeTab = 'posts'; // 'posts' or 'saved'
+    public $activeTab = 'posts'; // 'posts', 'saved', or 'liked'
 
     public function mount($username)
     {
@@ -21,15 +22,21 @@ class UserProfile extends Component
         $this->followersCount = $this->user->followersCount();
         $this->followingCount = $this->user->followingCount();
 
-        // Only load saved posts if viewing own profile
+        // Only load saved posts and liked posts if viewing own profile
         if (auth()->check() && auth()->id() === $this->user->id) {
             $this->savedPosts = $this->user->savedPostsWithPost()
                 ->with('post.user')
                 ->latest()
                 ->get()
                 ->pluck('post');
+
+            $this->likedPosts = $this->user->likedPosts()
+                ->with('user')
+                ->latest()
+                ->get();
         } else {
             $this->savedPosts = collect();
+            $this->likedPosts = collect();
         }
     }
 

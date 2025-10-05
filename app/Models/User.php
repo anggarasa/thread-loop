@@ -220,4 +220,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->savedPosts()->where('post_id', $post->id)->delete();
     }
+
+    /**
+     * Get the posts that this user has liked
+     */
+    public function likedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'post_likes')->withTimestamps();
+    }
 }
