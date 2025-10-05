@@ -313,12 +313,13 @@
                     <!-- Load more button -->
                     @if($hasMorePosts && !$loading && $posts->count() > 0)
                         <div class="col-span-full flex justify-center py-8">
-                            <button
+                            <flux:button
                                 wire:click="loadMore"
-                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                variant="primary"
+                                class="px-6 py-2"
                             >
                                 Load More Posts
-                            </button>
+                            </flux:button>
                         </div>
                     @elseif(!$hasMorePosts && $posts->count() > 0)
                         <div class="col-span-full text-center py-8">
@@ -385,12 +386,13 @@
                         <!-- Load more button -->
                         @if($hasMoreUsers && !$loading && $users->count() > 0)
                             <div class="flex justify-center py-8">
-                                <button
+                                <flux:button
+                                    variant="primary"
                                     wire:click="loadMore"
-                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    class="px-6 py-2"
                                 >
                                     Load More Users
-                                </button>
+                                </flux:button>
                             </div>
                         @elseif(!$hasMoreUsers && $users->count() > 0)
                             <div class="text-center py-8">

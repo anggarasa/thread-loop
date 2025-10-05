@@ -88,7 +88,7 @@
                         wire:click="toggleLike"
                         class="flex items-center space-x-2 text-zinc-600 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 transition-colors {{ $isLiked ? 'text-red-500 dark:text-red-400' : '' }}"
                     >
-                        <svg class="h-6 w-6 {{ $isLiked ? 'fill-current' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-6 w-6 {{ $isLiked ? 'fill-current text-red-500 dark:text-red-400' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                         </svg>
                         <span class="text-sm font-semibold">{{ number_format($likesCount) }}</span>
@@ -106,7 +106,7 @@
                         wire:click="toggleSave"
                         class="flex items-center space-x-2 text-zinc-600 hover:text-blue-500 dark:text-zinc-400 dark:hover:text-blue-400 transition-colors {{ $isSaved ? 'text-blue-500 dark:text-blue-400' : '' }}"
                     >
-                        <svg class="h-6 w-6 {{ $isSaved ? 'fill-current' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-6 w-6 {{ $isSaved ? 'fill-current text-blue-500 dark:text-blue-400' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                         </svg>
                         <span class="text-sm font-semibold">{{ $isSaved ? 'Saved' : 'Save' }}</span>
