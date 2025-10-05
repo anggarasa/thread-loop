@@ -14,20 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create users first
-        User::factory(10)->create();
-
-        User::create([
-            'name' => 'anggara',
-            'email' => 'anggasaputra6609@gmail.com',
-            'password' => Hash::make('password'),
-            'username' => 'anggara',
-            'email_verified_at' => now(),
-        ]);
-
-        // Create posts with media (images and videos only)
+        // Run all seeders in the correct order
         $this->call([
-            PostSeeder::class,
+            UserSeeder::class,        // Create users first
+            PostSeeder::class,        // Create regular posts with images
+            //VideoPostSeeder::class,   // Create video posts
+            CommentSeeder::class,     // Create comments
+            FollowSeeder::class,      // Create follow relationships
+            PostLikeSeeder::class,    // Create post likes
+            SavedPostSeeder::class,   // Create saved posts
         ]);
     }
 }
