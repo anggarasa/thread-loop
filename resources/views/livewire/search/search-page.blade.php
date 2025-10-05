@@ -356,9 +356,7 @@
                                         <div class="text-sm text-zinc-500 dark:text-zinc-400">
                                             {{ $user->posts()->count() }} posts
                                         </div>
-                                        <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
-                                            Follow
-                                        </button>
+                                        @livewire('follow-button', ['user' => $user])
                                     </div>
                                 </div>
                             </div>
