@@ -17,36 +17,41 @@
 
                     <!-- Navigation Links -->
                     <div class="hidden md:flex items-center space-x-8">
-                        <a href="{{ route('guest.home') }}"
-                           class="text-sm font-medium {{ request()->routeIs('guest.home') ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400' }} transition-colors"
-                           wire:navigate>
+                        <flux:link
+                            :href="route('guest.home')"
+                            wire:navigate
+                            class="text-sm font-medium {{ request()->routeIs('guest.home') ? 'text-accent' : 'text-zinc-700 dark:text-zinc-300 hover:text-accent' }} transition-colors">
                             {{ __('Home') }}
-                        </a>
-                        <a href="{{ route('guest.search') }}"
-                           class="text-sm font-medium {{ request()->routeIs('guest.search') ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400' }} transition-colors"
-                           wire:navigate>
+                        </flux:link>
+                        <flux:link
+                            :href="route('guest.search')"
+                            wire:navigate
+                            class="text-sm font-medium {{ request()->routeIs('guest.search') ? 'text-accent' : 'text-zinc-700 dark:text-zinc-300 hover:text-accent' }} transition-colors">
                             {{ __('Search') }}
-                        </a>
+                        </flux:link>
                     </div>
 
                     <!-- Auth Links -->
                     <div class="flex items-center space-x-4">
-                        <a href="{{ route('login') }}"
-                           class="text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                           wire:navigate>
+                        <flux:link
+                            :href="route('login')"
+                            wire:navigate
+                            class="text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-accent transition-colors">
                             {{ __('Log In') }}
-                        </a>
-                        <a href="{{ route('register') }}"
-                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
-                           wire:navigate>
+                        </flux:link>
+                        <flux:button
+                            variant="primary"
+                            :href="route('register')"
+                            wire:navigate
+                            class="px-4 py-2 text-sm font-medium">
                             {{ __('Sign Up') }}
-                        </a>
+                        </flux:button>
                     </div>
 
                     <!-- Mobile menu button -->
                     <div class="md:hidden">
                         <button type="button"
-                                class="text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none focus:text-blue-600 dark:focus:text-blue-400"
+                                class="text-zinc-700 dark:text-zinc-300 hover:text-accent focus:outline-none focus:text-accent"
                                 x-data="{ open: false }"
                                 @click="open = !open">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -60,27 +65,31 @@
                 <!-- Mobile Navigation Menu -->
                 <div class="md:hidden" x-data="{ open: false }" x-show="open" x-transition>
                     <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-zinc-200 dark:border-zinc-700">
-                        <a href="{{ route('guest.home') }}"
-                           class="block px-3 py-2 text-base font-medium {{ request()->routeIs('guest.home') ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400' }} transition-colors"
-                           wire:navigate>
+                        <flux:link
+                            :href="route('guest.home')"
+                            wire:navigate
+                            class="block px-3 py-2 text-base font-medium {{ request()->routeIs('guest.home') ? 'text-accent' : 'text-zinc-700 dark:text-zinc-300 hover:text-accent' }} transition-colors">
                             {{ __('Home') }}
-                        </a>
-                        <a href="{{ route('guest.search') }}"
-                           class="block px-3 py-2 text-base font-medium {{ request()->routeIs('guest.search') ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400' }} transition-colors"
-                           wire:navigate>
+                        </flux:link>
+                        <flux:link
+                            :href="route('guest.search')"
+                            wire:navigate
+                            class="block px-3 py-2 text-base font-medium {{ request()->routeIs('guest.search') ? 'text-accent' : 'text-zinc-700 dark:text-zinc-300 hover:text-accent' }} transition-colors">
                             {{ __('Search') }}
-                        </a>
+                        </flux:link>
                         <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4">
-                            <a href="{{ route('login') }}"
-                               class="block px-3 py-2 text-base font-medium text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                               wire:navigate>
+                            <flux:link
+                                :href="route('login')"
+                                wire:navigate
+                                class="block px-3 py-2 text-base font-medium text-zinc-700 dark:text-zinc-300 hover:text-accent transition-colors">
                                 {{ __('Log In') }}
-                            </a>
-                            <a href="{{ route('register') }}"
-                               class="block px-3 py-2 text-base font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 transition-colors"
-                               wire:navigate>
+                            </flux:link>
+                            <flux:link
+                                :href="route('register')"
+                                wire:navigate
+                                class="block px-3 py-2 text-base font-medium text-accent hover:text-accent-foreground transition-colors">
                                 {{ __('Sign Up') }}
-                            </a>
+                            </flux:link>
                         </div>
                     </div>
                 </div>

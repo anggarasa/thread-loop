@@ -28,7 +28,7 @@ class GuestHomePage extends Component
         $this->loading = true;
 
         $newPosts = Post::with('user')
-            ->latest()
+            ->inRandomOrder()
             ->skip(($this->page - 1) * 10)
             ->limit(10)
             ->get();
