@@ -47,25 +47,45 @@ class SearchPage extends Component
     public function updatedActiveTab()
     {
         $this->resetSearchData();
-        $this->loadInitialData();
+        if (!empty($this->search)) {
+            if ($this->activeTab === 'posts') {
+                $this->loadInitialPosts();
+            } else {
+                $this->loadInitialUsers();
+            }
+        }
     }
 
     public function updatedSortBy()
     {
         $this->resetSearchData();
-        $this->loadInitialData();
+        if (!empty($this->search)) {
+            if ($this->activeTab === 'posts') {
+                $this->loadInitialPosts();
+            } else {
+                $this->loadInitialUsers();
+            }
+        }
     }
 
     public function updatedDateFilter()
     {
         $this->resetSearchData();
-        $this->loadInitialData();
+        if (!empty($this->search)) {
+            if ($this->activeTab === 'posts') {
+                $this->loadInitialPosts();
+            } else {
+                $this->loadInitialUsers();
+            }
+        }
     }
 
     public function updatedMediaFilter()
     {
         $this->resetSearchData();
-        $this->loadInitialData();
+        if (!empty($this->search)) {
+            $this->loadInitialPosts(); // Media filter only applies to posts
+        }
     }
 
     public function clearSearch()
@@ -113,23 +133,126 @@ class SearchPage extends Component
         }
 
         $this->page = 1;
-        $this->loadPosts();
-        $this->loadUsers();
+        $this->hasMorePosts = true;
+        $this->hasMoreUsers = true;
+        $this->loading = false;
+
+        // Load initial data for both tabs without incrementing page
+        $this->loadInitialPosts();
+        $this->loadInitialUsers();
     }
 
     public function loadMore()
     {
-        if ($this->loading) {
-            return;
-        }
-
-        $this->page++;
-
         if ($this->activeTab === 'posts') {
             $this->loadPosts();
         } else {
             $this->loadUsers();
         }
+    }
+
+    private function loadInitialPosts()
+    {
+        if (empty($this->search)) {
+            return;
+        }
+
+        $query = Post::with('user')
+            ->where('content', 'like', '%' . $this->search . '%');
+
+        // Apply media filter
+        if ($this->mediaFilter !== 'all') {
+            if ($this->mediaFilter === 'text') {
+                $query->whereNull('media_type');
+            } else {
+                $query->where('media_type', $this->mediaFilter);
+            }
+        }
+
+        // Apply date filter
+        if ($this->dateFilter !== 'all') {
+            $dateFilter = match($this->dateFilter) {
+                'today' => now()->startOfDay(),
+                'week' => now()->subWeek(),
+                'month' => now()->subMonth(),
+                'year' => now()->subYear(),
+                default => null
+            };
+
+            if ($dateFilter) {
+                $query->where('created_at', '>=', $dateFilter);
+            }
+        }
+
+        // Apply sorting
+        $query->orderBy($this->getSortColumn(), $this->getSortDirection());
+
+        $newPosts = $query->skip(($this->page - 1) * 12)
+            ->limit(12)
+            ->get();
+
+        if ($newPosts->count() < 12) {
+            $this->hasMorePosts = false;
+        }
+
+        $this->posts = $newPosts;
+    }
+
+    private function loadInitialUsers()
+    {
+        if (empty($this->search)) {
+            return;
+        }
+
+        $query = User::where(function ($q) {
+            $q->where('name', 'like', '%' . $this->search . '%')
+              ->orWhere('username', 'like', '%' . $this->search . '%')
+              ->orWhere('email', 'like', '%' . $this->search . '%');
+        });
+
+        // Apply date filter
+        if ($this->dateFilter !== 'all') {
+            $dateFilter = match($this->dateFilter) {
+                'today' => now()->startOfDay(),
+                'week' => now()->subWeek(),
+                'month' => now()->subMonth(),
+                'year' => now()->subYear(),
+                default => null
+            };
+
+            if ($dateFilter) {
+                $query->where('created_at', '>=', $dateFilter);
+            }
+        }
+
+        // Apply sorting for users specifically
+        $sortColumn = match($this->sortBy) {
+            'recent' => 'created_at',
+            'popular' => 'created_at', // Users don't have likes_count, use created_at
+            'name' => 'name',
+            'username' => 'username',
+            default => 'created_at'
+        };
+
+        $sortDirection = match($this->sortBy) {
+            'recent' => 'desc',
+            'popular' => 'desc',
+            'name' => 'asc',
+            'username' => 'asc',
+            default => 'desc'
+        };
+
+        $query->orderBy($sortColumn, $sortDirection);
+
+        $newUsers = $query->skip(($this->page - 1) * 10)
+            ->limit(10)
+            ->get();
+
+        if ($newUsers->count() < 10) {
+            $this->hasMoreUsers = false;
+        }
+
+        $this->users = $newUsers;
     }
 
     private function loadPosts()
@@ -184,6 +307,7 @@ class SearchPage extends Component
             $this->posts = collect($this->posts)->concat($newPosts);
         }
 
+        $this->page++;
         $this->loading = false;
     }
 
@@ -216,8 +340,24 @@ class SearchPage extends Component
             }
         }
 
-        // Apply sorting
-        $query->orderBy($this->getSortColumn(), $this->getSortDirection());
+        // Apply sorting for users specifically
+        $sortColumn = match($this->sortBy) {
+            'recent' => 'created_at',
+            'popular' => 'created_at', // Users don't have likes_count, use created_at
+            'name' => 'name',
+            'username' => 'username',
+            default => 'created_at'
+        };
+
+        $sortDirection = match($this->sortBy) {
+            'recent' => 'desc',
+            'popular' => 'desc',
+            'name' => 'asc',
+            'username' => 'asc',
+            default => 'desc'
+        };
+
+        $query->orderBy($sortColumn, $sortDirection);
 
         $newUsers = $query->skip(($this->page - 1) * 10)
             ->limit(10)
@@ -233,6 +373,7 @@ class SearchPage extends Component
             $this->users = collect($this->users)->concat($newUsers);
         }
 
+        $this->page++;
         $this->loading = false;
     }
 

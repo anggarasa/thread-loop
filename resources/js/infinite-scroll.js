@@ -35,8 +35,20 @@ function loadMorePosts() {
 
             if (component && !component.loading) {
                 // Check if we have more posts (for home page) or more posts/users (for search page)
-                const hasMore =
-                    component.hasMorePosts || component.hasMoreUsers;
+                let hasMore = false;
+
+                if (homePageElement) {
+                    // For home page, only check hasMorePosts
+                    hasMore = component.hasMorePosts;
+                } else if (searchPageElement) {
+                    // For search page, check based on active tab
+                    const activeTab = component.activeTab || "posts";
+                    if (activeTab === "posts") {
+                        hasMore = component.hasMorePosts;
+                    } else if (activeTab === "users") {
+                        hasMore = component.hasMoreUsers;
+                    }
+                }
 
                 if (hasMore) {
                     isLoading = true;
@@ -56,8 +68,20 @@ function loadMorePosts() {
             for (let component of allComponents) {
                 if (!component.loading) {
                     // Check if we have more posts (for home page) or more posts/users (for search page)
-                    const hasMore =
-                        component.hasMorePosts || component.hasMoreUsers;
+                    let hasMore = false;
+
+                    if (homePageElement) {
+                        // For home page, only check hasMorePosts
+                        hasMore = component.hasMorePosts;
+                    } else if (searchPageElement) {
+                        // For search page, check based on active tab
+                        const activeTab = component.activeTab || "posts";
+                        if (activeTab === "posts") {
+                            hasMore = component.hasMorePosts;
+                        } else if (activeTab === "users") {
+                            hasMore = component.hasMoreUsers;
+                        }
+                    }
 
                     if (hasMore) {
                         isLoading = true;
