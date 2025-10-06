@@ -147,4 +147,12 @@ class Post extends Model
             $this->savedBy()->detach($user->id);
         }
     }
+
+    /**
+     * Check if the current user can delete this post
+     */
+    public function canBeDeletedBy(User $user): bool
+    {
+        return $this->user_id === $user->id;
+    }
 }

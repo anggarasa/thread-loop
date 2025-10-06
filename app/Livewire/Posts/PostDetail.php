@@ -25,6 +25,9 @@ class PostDetail extends Component
     // Follow functionality
     public $followingUsers = [];
 
+    // Delete post functionality
+    public $showDeleteModal = false;
+
     public function mount(Post $post)
     {
         $this->post = $post->load(['user', 'comments.user']);
@@ -131,6 +134,46 @@ class PostDetail extends Component
     public function isFollowing($userId)
     {
         return in_array($userId, $this->followingUsers);
+    }
+
+    public function deletePost()
+    {
+        // Check if user is authorized to delete this post
+        if (!$this->post->canBeDeletedBy(auth()->user())) {
+            session()->flash('error', 'You are not authorized to delete this post.');
+            return;
+        }
+
+        $this->showDeleteModal = true;
+    }
+
+    public function confirmDeletePost()
+    {
+        // Double check authorization
+        if (!$this->post->canBeDeletedBy(auth()->user())) {
+            session()->flash('error', 'You are not authorized to delete this post.');
+            $this->showDeleteModal = false;
+            return;
+        }
+
+        try {
+            // Delete the post
+            $this->post->delete();
+
+            session()->flash('success', 'Post deleted successfully.');
+
+            // Redirect to home page
+            return redirect()->route('homePage');
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to delete post. Please try again.');
+            $this->showDeleteModal = false;
+        }
+    }
+
+    public function cancelDeletePost()
+    {
+        $this->showDeleteModal = false;
     }
 
     public function render()

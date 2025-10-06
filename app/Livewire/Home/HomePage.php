@@ -26,6 +26,9 @@ class HomePage extends Component
     // Follow functionality
     public $followingUsers = [];
 
+    // Delete post functionality
+    public $postToDelete = null;
+
     public function mount()
     {
         $userId = auth()->id();
@@ -241,6 +244,70 @@ class HomePage extends Component
     public function loadMore()
     {
         $this->loadPosts();
+    }
+
+    public function deletePost($postId)
+    {
+        $post = Post::findOrFail($postId);
+
+        // Check if user is authorized to delete this post
+        if (!$post->canBeDeletedBy(auth()->user())) {
+            session()->flash('error', 'You are not authorized to delete this post.');
+            return;
+        }
+
+        $this->postToDelete = $postId;
+    }
+
+    public function confirmDeletePost()
+    {
+        if (!$this->postToDelete) {
+            return;
+        }
+
+        try {
+            $post = Post::findOrFail($this->postToDelete);
+
+            // Double check authorization
+            if (!$post->canBeDeletedBy(auth()->user())) {
+                session()->flash('error', 'You are not authorized to delete this post.');
+                $this->postToDelete = null;
+                return;
+            }
+
+            // Delete the post
+            $post->delete();
+
+            // Remove from posts collection
+            $this->posts = $this->posts->reject(function ($p) {
+                return $p->id == $this->postToDelete;
+            });
+
+            // Remove from liked posts if it was liked
+            $this->likedPosts = array_values(array_diff($this->likedPosts, [$this->postToDelete]));
+
+            // Remove from saved posts if it was saved
+            $this->savedPosts = array_values(array_diff($this->savedPosts, [$this->postToDelete]));
+
+            // Remove from comments if it was showing comments
+            $this->showComments = array_values(array_diff($this->showComments, [$this->postToDelete]));
+
+            // Remove comments data
+            unset($this->comments[$this->postToDelete]);
+            unset($this->newComments[$this->postToDelete]);
+
+            $this->postToDelete = null;
+            session()->flash('success', 'Post deleted successfully.');
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to delete post. Please try again.');
+            $this->postToDelete = null;
+        }
+    }
+
+    public function cancelDeletePost()
+    {
+        $this->postToDelete = null;
     }
 
     public function render()

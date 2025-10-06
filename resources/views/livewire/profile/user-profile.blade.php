@@ -101,22 +101,41 @@
         <div class="grid grid-cols-3 gap-1">
             @if($activeTab === 'posts')
                 @forelse($posts as $post)
-                    <a href="{{ route('posts.show', $post) }}" wire:navigate class="aspect-square bg-zinc-200 dark:bg-zinc-700">
-                        @if($post->isImagePost() && $post->media_url)
-                            <img src="{{ $post->media_url }}" alt="Post" class="w-full h-full object-cover">
-                        @elseif($post->isVideoPost() && $post->media_url)
-                            <video class="w-full h-full object-cover" muted>
-                                <source src="{{ $post->media_url }}" type="video/mp4">
-                            </video>
-                        @else
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-zinc-800 dark:to-zinc-700">
-                                <div class="text-center">
-                                    <div class="text-4xl mb-2">📝</div>
-                                    <p class="text-xs text-zinc-600 dark:text-zinc-300">Text Post</p>
+                    <div class="relative aspect-square bg-zinc-200 dark:bg-zinc-700 group">
+                        <a href="{{ route('posts.show', $post) }}" wire:navigate class="block w-full h-full">
+                            @if($post->isImagePost() && $post->media_url)
+                                <img src="{{ $post->media_url }}" alt="Post" class="w-full h-full object-cover">
+                            @elseif($post->isVideoPost() && $post->media_url)
+                                <video class="w-full h-full object-cover" muted>
+                                    <source src="{{ $post->media_url }}" type="video/mp4">
+                                </video>
+                            @else
+                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-zinc-800 dark:to-zinc-700">
+                                    <div class="text-center">
+                                        <div class="text-4xl mb-2">📝</div>
+                                        <p class="text-xs text-zinc-600 dark:text-zinc-300">Text Post</p>
+                                    </div>
                                 </div>
+                            @endif
+                        </a>
+
+                        @if($post->user_id === auth()->id())
+                            <!-- Delete button overlay -->
+                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <flux:modal.trigger name="delete-post-{{ $post->id }}">
+                                    <button
+                                        wire:click="deletePost({{ $post->id }})"
+                                        class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
+                                        title="Delete post"
+                                    >
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </flux:modal.trigger>
                             </div>
                         @endif
-                    </a>
+                    </div>
                 @empty
                     <div class="col-span-3 text-center py-12">
                         <p class="text-zinc-500 dark:text-zinc-400">No posts yet</p>
@@ -171,4 +190,29 @@
             @endif
         </div>
     </div>
+
+    <!-- Delete Post Confirmation Modal -->
+    @if($postToDelete)
+        <flux:modal name="delete-post-{{ $postToDelete }}" class="min-w-[22rem]" :closable="false" :dismissible="false">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Delete post?</flux:heading>
+                    <flux:text class="mt-2">
+                        <p>You're about to delete this post.</p>
+                        <p>This action cannot be reversed.</p>
+                    </flux:text>
+                </div>
+
+                <div class="flex gap-2">
+                    <flux:spacer />
+                    <flux:modal.close>
+                        <flux:button wire:click="cancelDeletePost" variant="ghost">Cancel</flux:button>
+                    </flux:modal.close>
+                    <flux:button wire:click="confirmDeletePost" variant="danger">
+                        Delete post
+                    </flux:button>
+                </div>
+            </div>
+        </flux:modal>
+    @endif
 </div>

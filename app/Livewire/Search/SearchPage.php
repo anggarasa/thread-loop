@@ -28,6 +28,9 @@ class SearchPage extends Component
     // Follow functionality
     public $followingUsers = [];
 
+    // Delete post functionality
+    public $postToDelete = null;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'activeTab' => ['except' => 'posts'],
@@ -502,6 +505,57 @@ class SearchPage extends Component
     public function isFollowing($userId)
     {
         return in_array($userId, $this->followingUsers);
+    }
+
+    public function deletePost($postId)
+    {
+        $post = Post::findOrFail($postId);
+
+        // Check if user is authorized to delete this post
+        if (!$post->canBeDeletedBy(auth()->user())) {
+            session()->flash('error', 'You are not authorized to delete this post.');
+            return;
+        }
+
+        $this->postToDelete = $postId;
+    }
+
+    public function confirmDeletePost()
+    {
+        if (!$this->postToDelete) {
+            return;
+        }
+
+        try {
+            $post = Post::findOrFail($this->postToDelete);
+
+            // Double check authorization
+            if (!$post->canBeDeletedBy(auth()->user())) {
+                session()->flash('error', 'You are not authorized to delete this post.');
+                $this->postToDelete = null;
+                return;
+            }
+
+            // Delete the post
+            $post->delete();
+
+            // Remove from posts collection
+            $this->posts = collect($this->posts)->reject(function ($p) {
+                return $p->id == $this->postToDelete;
+            });
+
+            $this->postToDelete = null;
+            session()->flash('success', 'Post deleted successfully.');
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to delete post. Please try again.');
+            $this->postToDelete = null;
+        }
+    }
+
+    public function cancelDeletePost()
+    {
+        $this->postToDelete = null;
     }
 
     public function render()

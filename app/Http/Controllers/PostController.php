@@ -178,4 +178,72 @@ class PostController extends Controller
                 ->withInput();
         }
     }
+
+    public function destroy(Request $request, Post $post)
+    {
+        // Check if user is authorized to delete this post
+        if (!$post->canBeDeletedBy(Auth::user())) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not authorized to delete this post.',
+                ], 403);
+            }
+            return redirect()->back()->with('error', 'You are not authorized to delete this post.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Delete media from Cloudinary if it exists
+            if ($post->media_path) {
+                try {
+                    Cloudinary::uploadApi()->destroy($post->media_path);
+                } catch (Exception $e) {
+                    Log::warning('Failed to delete media from Cloudinary:', [
+                        'post_id' => $post->id,
+                        'media_path' => $post->media_path,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue with post deletion even if media deletion fails
+                }
+            }
+
+            // Delete the post (this will cascade delete related records due to foreign key constraints)
+            $post->delete();
+
+            DB::commit();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Post deleted successfully.',
+                ]);
+            }
+
+            return redirect()->route('homePage')
+                ->with('success', 'Post deleted successfully.');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Post deletion failed:', [
+                'post_id' => $post->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'ip' => $request->ip()
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete post. Please try again.',
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Failed to delete post. Please try again.');
+        }
+    }
 }
