@@ -6,6 +6,8 @@ use App\Models\Post;
 use App\Models\User;
 use App\Notifications\PostCommented;
 use App\Notifications\PostLiked;
+use App\Notifications\UserFollowed;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -20,12 +22,24 @@ class PostDetail extends Component
     public $likesCount = 0;
     public $isSaved = false;
 
+    // Follow functionality
+    public $followingUsers = [];
+
     public function mount(Post $post)
     {
         $this->post = $post->load(['user', 'comments.user']);
         $this->likesCount = $this->post->likes_count;
         $this->isLiked = $this->post->isLikedBy(auth()->user());
         $this->isSaved = $this->post->isSavedBy(auth()->user());
+
+        // Initialize follow state
+        $userId = auth()->id();
+        if ($userId) {
+            $this->followingUsers = DB::table('follows')
+                ->where('follower_id', $userId)
+                ->pluck('following_id')
+                ->toArray();
+        }
     }
 
     public function toggleLike()
@@ -85,6 +99,38 @@ class PostDetail extends Component
     public function goBack()
     {
         return redirect()->back();
+    }
+
+    public function toggleFollow($userId)
+    {
+        $currentUser = auth()->user();
+
+        if (!$currentUser) {
+            return redirect()->route('login');
+        }
+
+        if ($currentUser->id === $userId) {
+            return;
+        }
+
+        $user = User::findOrFail($userId);
+
+        if (in_array($userId, $this->followingUsers)) {
+            // Unfollow
+            $currentUser->unfollow($user);
+            $this->followingUsers = array_values(array_diff($this->followingUsers, [$userId]));
+        } else {
+            // Follow
+            $currentUser->follow($user);
+            $this->followingUsers[] = $userId;
+            // Send notification
+            $user->notify(new UserFollowed($currentUser));
+        }
+    }
+
+    public function isFollowing($userId)
+    {
+        return in_array($userId, $this->followingUsers);
     }
 
     public function render()
