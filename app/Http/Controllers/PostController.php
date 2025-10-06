@@ -38,22 +38,17 @@ class PostController extends Controller
             // Enhanced validation
             $request->validate([
                 'content' => 'required|string|max:500|min:1',
-                'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // Made optional
+                'media' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // Made required
             ], [
                 'content.required' => 'Post content is required.',
                 'content.max' => 'Post content cannot exceed 500 characters.',
                 'content.min' => 'Post content must be at least 1 character.',
+                'media.required' => 'Media upload is required.',
                 'media.mimes' => 'Only JPEG, PNG, JPG, GIF, MP4, MOV, and AVI files are allowed.',
                 'media.max' => 'File size cannot exceed 10MB.',
             ]);
 
-            // Check if user has both content and media or at least one
-            if (empty($request->content) && !$request->hasFile('media')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Post must contain either text content or media.',
-                ], 422);
-            }
+            // Media is now required, so no need for this check
 
             DB::beginTransaction();
 
@@ -64,43 +59,41 @@ class PostController extends Controller
                 'comments_count' => 0,
             ];
 
-            // Handle media upload to Cloudinary if present
-            if ($request->hasFile('media')) {
-                $file = $request->file('media');
-                $mediaType = $file->getMimeType();
+            // Handle media upload to Cloudinary (now required)
+            $file = $request->file('media');
+            $mediaType = $file->getMimeType();
 
-                // Enhanced media type validation
-                if (str_starts_with($mediaType, 'image/')) {
-                    $postData['media_type'] = 'image';
-                } elseif (str_starts_with($mediaType, 'video/')) {
-                    $postData['media_type'] = 'video';
-                } else {
-                    throw new Exception('Unsupported media type.');
-                }
+            // Enhanced media type validation
+            if (str_starts_with($mediaType, 'image/')) {
+                $postData['media_type'] = 'image';
+            } elseif (str_starts_with($mediaType, 'video/')) {
+                $postData['media_type'] = 'video';
+            } else {
+                throw new Exception('Unsupported media type.');
+            }
 
-                // Upload to Cloudinary with error handling
-                try {
-                    $uploadResult = Cloudinary::uploadApi()->upload($file->getRealPath(), [
-                        'folder' => 'thread-loop/posts',
-                        'resource_type' => $postData['media_type'],
-                        'transformation' => [
-                            'quality' => 'auto',
-                            'fetch_format' => 'auto'
-                        ]
-                    ]);
+            // Upload to Cloudinary with error handling
+            try {
+                $uploadResult = Cloudinary::uploadApi()->upload($file->getRealPath(), [
+                    'folder' => 'thread-loop/posts',
+                    'resource_type' => $postData['media_type'],
+                    'transformation' => [
+                        'quality' => 'auto',
+                        'fetch_format' => 'auto'
+                    ]
+                ]);
 
-                    $postData['media_path'] = $uploadResult['public_id'];
-                    $postData['media_url'] = $uploadResult['secure_url'];
-                } catch (Exception $e) {
-                    Log::error('Cloudinary upload failed:', [
-                        'user_id' => $userId,
-                        'error' => $e->getMessage(),
-                        'file_size' => $file->getSize(),
-                        'file_type' => $mediaType
-                    ]);
+                $postData['media_path'] = $uploadResult['public_id'];
+                $postData['media_url'] = $uploadResult['secure_url'];
+            } catch (Exception $e) {
+                Log::error('Cloudinary upload failed:', [
+                    'user_id' => $userId,
+                    'error' => $e->getMessage(),
+                    'file_size' => $file->getSize(),
+                    'file_type' => $mediaType
+                ]);
 
-                    throw new Exception('Failed to upload media. Please try again.');
-                }
+                throw new Exception('Failed to upload media. Please try again.');
             }
 
             // Create post in database
