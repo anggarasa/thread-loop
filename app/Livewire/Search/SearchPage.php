@@ -4,6 +4,7 @@ namespace App\Livewire\Search;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\UserFollowed;
 use Livewire\Component;
 
 class SearchPage extends Component
@@ -24,6 +25,9 @@ class SearchPage extends Component
     public $hasMoreUsers = true;
     public $loading = false;
 
+    // Follow functionality
+    public $followingUsers = [];
+
     protected $queryString = [
         'search' => ['except' => ''],
         'activeTab' => ['except' => 'posts'],
@@ -32,6 +36,15 @@ class SearchPage extends Component
 
     public function mount()
     {
+        // Initialize follow state
+        $userId = auth()->id();
+        if ($userId) {
+            $this->followingUsers = \Illuminate\Support\Facades\DB::table('follows')
+                ->where('follower_id', $userId)
+                ->pluck('following_id')
+                ->toArray();
+        }
+
         $this->loadInitialData();
     }
 
@@ -150,6 +163,15 @@ class SearchPage extends Component
     public function loadMoreUsers()
     {
         $this->loadUsers();
+    }
+
+    public function loadMore()
+    {
+        if ($this->activeTab === 'posts') {
+            $this->loadMorePosts();
+        } else {
+            $this->loadMoreUsers();
+        }
     }
 
     private function loadInitialPosts()
@@ -448,6 +470,38 @@ class SearchPage extends Component
         }
 
         return $suggestions->take(5);
+    }
+
+    public function toggleFollow($userId)
+    {
+        $currentUser = auth()->user();
+
+        if (!$currentUser) {
+            return redirect()->route('login');
+        }
+
+        if ($currentUser->id === $userId) {
+            return;
+        }
+
+        $user = User::findOrFail($userId);
+
+        if (in_array($userId, $this->followingUsers)) {
+            // Unfollow
+            $currentUser->unfollow($user);
+            $this->followingUsers = array_values(array_diff($this->followingUsers, [$userId]));
+        } else {
+            // Follow
+            $currentUser->follow($user);
+            $this->followingUsers[] = $userId;
+            // Send notification
+            $user->notify(new UserFollowed($currentUser));
+        }
+    }
+
+    public function isFollowing($userId)
+    {
+        return in_array($userId, $this->followingUsers);
     }
 
     public function render()

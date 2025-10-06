@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Comment;
 use App\Notifications\PostCommented;
 use App\Notifications\PostLiked;
+use App\Notifications\UserFollowed;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -22,6 +23,9 @@ class HomePage extends Component
     public $hasMorePosts = true;
     public $loading = false;
 
+    // Follow functionality
+    public $followingUsers = [];
+
     public function mount()
     {
         $userId = auth()->id();
@@ -35,6 +39,12 @@ class HomePage extends Component
         $this->savedPosts = DB::table('saved_posts')
             ->where('user_id', $userId)
             ->pluck('post_id')
+            ->toArray();
+
+        // Initialize follow state
+        $this->followingUsers = DB::table('follows')
+            ->where('follower_id', $userId)
+            ->pluck('following_id')
             ->toArray();
 
         // Initialize comments visibility
@@ -165,6 +175,38 @@ class HomePage extends Component
     public function isSaved($postId)
     {
         return in_array($postId, $this->savedPosts);
+    }
+
+    public function toggleFollow($userId)
+    {
+        $currentUser = auth()->user();
+
+        if (!$currentUser) {
+            return redirect()->route('login');
+        }
+
+        if ($currentUser->id === $userId) {
+            return;
+        }
+
+        $user = User::findOrFail($userId);
+
+        if (in_array($userId, $this->followingUsers)) {
+            // Unfollow
+            $currentUser->unfollow($user);
+            $this->followingUsers = array_values(array_diff($this->followingUsers, [$userId]));
+        } else {
+            // Follow
+            $currentUser->follow($user);
+            $this->followingUsers[] = $userId;
+            // Send notification
+            $user->notify(new UserFollowed($currentUser));
+        }
+    }
+
+    public function isFollowing($userId)
+    {
+        return in_array($userId, $this->followingUsers);
     }
 
     public function loadPosts()
