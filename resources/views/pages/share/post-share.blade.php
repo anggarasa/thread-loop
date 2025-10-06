@@ -48,7 +48,7 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <a href="{{ route('home') }}" class="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                        <a href="{{ route('guest.home') }}" class="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
                             Home
                         </a>
                         <a href="{{ route('login') }}" class="px-4 py-2 bg-neutral-800 hover:bg-neutral-600 text-white rounded-full text-sm font-semibold transition-colors">
@@ -194,7 +194,7 @@
         }
 
         function copyShareLink() {
-            const url = window.location.href;
+            const url = `{{ url('/share') }}/{{ $post->id }}`;
             const button = event.target.closest('button');
             const originalText = button.innerHTML;
 
