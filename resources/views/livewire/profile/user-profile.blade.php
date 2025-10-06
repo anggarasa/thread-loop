@@ -1,33 +1,33 @@
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-    <div class="max-w-4xl mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <!-- Profile Header -->
-        <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 mb-6">
-            <div class="flex items-start space-x-6">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl sm:rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 mb-4 sm:mb-6">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
                 <!-- Profile Picture -->
-                <div class="h-24 w-24 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
+                <div class="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5 flex-shrink-0">
                     <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
                         @if($user->profile_url)
                             <img src="{{ $user->profile_url }}" alt="{{ $user->name }}" class="h-full w-full rounded-full object-cover">
                         @else
                             <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                <span class="text-2xl font-semibold text-zinc-600 dark:text-zinc-300">{{ $user->initials() }}</span>
+                                <span class="text-lg sm:text-2xl font-semibold text-zinc-600 dark:text-zinc-300">{{ $user->initials() }}</span>
                             </div>
                         @endif
                     </div>
                 </div>
 
                 <!-- Profile Info -->
-                <div class="flex-1">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $user->name }}</h1>
+                <div class="flex-1 w-full">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
+                        <div class="text-center sm:text-left">
+                            <h1 class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{{ $user->name }}</h1>
                             <p class="text-zinc-500 dark:text-zinc-400">@<span>{{ $user->username }}</span></p>
                         </div>
-                        <div class="flex items-center space-x-3">
+                        <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
                             @if(auth()->check() && auth()->id() === $user->id)
                                 <!-- Settings Button -->
                                 <a href="{{ route('settings.profile') }}" wire:navigate
-                                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors">
+                                   class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -36,10 +36,10 @@
                                 </a>
 
                                 <!-- Logout Button -->
-                                <form method="POST" action="{{ route('logout') }}" class="inline">
+                                <form method="POST" action="{{ route('logout') }}" class="w-full sm:w-auto">
                                     @csrf
                                     <button type="submit"
-                                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-zinc-700 border border-red-300 dark:border-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                            class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-zinc-700 border border-red-300 dark:border-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                         </svg>
@@ -47,24 +47,29 @@
                                     </button>
                                 </form>
                             @else
-                                @livewire('follow-button', ['user' => $user])
+                                <button
+                                    wire:click="toggleFollow({{ $user->id }})"
+                                    class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 {{ $this->isFollowing($user->id) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-600' : 'bg-blue-600 text-white hover:bg-blue-700' }}"
+                                >
+                                    {{ $this->isFollowing($user->id) ? 'Following' : 'Follow' }}
+                                </button>
                             @endif
                         </div>
                     </div>
 
                     <!-- Stats -->
-                    <div class="flex items-center space-x-6 mb-4">
+                    <div class="flex items-center justify-center sm:justify-start space-x-6 sm:space-x-8 mb-4">
                         <div class="text-center">
-                            <div class="text-xl font-bold text-zinc-900 dark:text-white">{{ $posts->count() }}</div>
-                            <div class="text-sm text-zinc-500 dark:text-zinc-400">Posts</div>
+                            <div class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">{{ $posts->count() }}</div>
+                            <div class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">Posts</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-xl font-bold text-zinc-900 dark:text-white">{{ $followersCount }}</div>
-                            <div class="text-sm text-zinc-500 dark:text-zinc-400">Followers</div>
+                            <div class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">{{ $followersCount }}</div>
+                            <div class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">Followers</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-xl font-bold text-zinc-900 dark:text-white">{{ $followingCount }}</div>
-                            <div class="text-sm text-zinc-500 dark:text-zinc-400">Following</div>
+                            <div class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">{{ $followingCount }}</div>
+                            <div class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">Following</div>
                         </div>
                     </div>
                 </div>
@@ -73,23 +78,23 @@
 
         <!-- Tabs (only show for own profile) -->
         @if(auth()->check() && auth()->id() === $user->id)
-            <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 mb-6">
+            <div class="bg-white dark:bg-zinc-800 rounded-xl sm:rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 mb-4 sm:mb-6">
                 <div class="flex">
                     <button
                         wire:click="switchTab('posts')"
-                        class="flex-1 px-6 py-4 text-center font-medium transition-colors {{ $activeTab === 'posts' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300' }}"
+                        class="flex-1 px-3 sm:px-6 py-3 sm:py-4 text-center text-sm sm:text-base font-medium transition-colors {{ $activeTab === 'posts' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300' }}"
                     >
                         Posts
                     </button>
                     <button
                         wire:click="switchTab('liked')"
-                        class="flex-1 px-6 py-4 text-center font-medium transition-colors {{ $activeTab === 'liked' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300' }}"
+                        class="flex-1 px-3 sm:px-6 py-3 sm:py-4 text-center text-sm sm:text-base font-medium transition-colors {{ $activeTab === 'liked' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300' }}"
                     >
                         Liked
                     </button>
                     <button
                         wire:click="switchTab('saved')"
-                        class="flex-1 px-6 py-4 text-center font-medium transition-colors {{ $activeTab === 'saved' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300' }}"
+                        class="flex-1 px-3 sm:px-6 py-3 sm:py-4 text-center text-sm sm:text-base font-medium transition-colors {{ $activeTab === 'saved' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300' }}"
                     >
                         Saved
                     </button>
@@ -98,7 +103,7 @@
         @endif
 
         <!-- Posts Grid -->
-        <div class="grid grid-cols-3 gap-1">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1 sm:gap-2">
             @if($activeTab === 'posts')
                 @forelse($posts as $post)
                     <div class="relative aspect-square bg-zinc-200 dark:bg-zinc-700 group">
@@ -137,8 +142,8 @@
                         @endif
                     </div>
                 @empty
-                    <div class="col-span-3 text-center py-12">
-                        <p class="text-zinc-500 dark:text-zinc-400">No posts yet</p>
+                    <div class="col-span-2 sm:col-span-3 text-center py-8 sm:py-12">
+                        <p class="text-sm sm:text-base text-zinc-500 dark:text-zinc-400">No posts yet</p>
                     </div>
                 @endforelse
             @elseif($activeTab === 'saved')
@@ -160,8 +165,8 @@
                         @endif
                     </a>
                 @empty
-                    <div class="col-span-3 text-center py-12">
-                        <p class="text-zinc-500 dark:text-zinc-400">No saved posts yet</p>
+                    <div class="col-span-2 sm:col-span-3 text-center py-8 sm:py-12">
+                        <p class="text-sm sm:text-base text-zinc-500 dark:text-zinc-400">No saved posts yet</p>
                     </div>
                 @endforelse
             @elseif($activeTab === 'liked')
@@ -183,8 +188,8 @@
                         @endif
                     </a>
                 @empty
-                    <div class="col-span-3 text-center py-12">
-                        <p class="text-zinc-500 dark:text-zinc-400">No liked posts yet</p>
+                    <div class="col-span-2 sm:col-span-3 text-center py-8 sm:py-12">
+                        <p class="text-sm sm:text-base text-zinc-500 dark:text-zinc-400">No liked posts yet</p>
                     </div>
                 @endforelse
             @endif
@@ -193,7 +198,7 @@
 
     <!-- Delete Post Confirmation Modal -->
     @if($postToDelete)
-        <flux:modal name="delete-post-{{ $postToDelete }}" class="min-w-[22rem]" :closable="false" :dismissible="false">
+        <flux:modal name="delete-post-{{ $postToDelete }}" class="min-w-[18rem] sm:min-w-[22rem]" :closable="false" :dismissible="false">
             <div class="space-y-6">
                 <div>
                     <flux:heading size="lg">Delete post?</flux:heading>

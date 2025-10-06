@@ -4,6 +4,7 @@ namespace App\Livewire\Profile;
 
 use App\Models\User;
 use App\Models\Post;
+use App\Notifications\UserFollowed;
 use Livewire\Component;
 
 class UserProfile extends Component
@@ -16,6 +17,9 @@ class UserProfile extends Component
     public $followingCount;
     public $activeTab = 'posts'; // 'posts', 'saved', or 'liked'
 
+    // Follow functionality
+    public $followingUsers = [];
+
     // Delete post functionality
     public $postToDelete = null;
 
@@ -25,6 +29,11 @@ class UserProfile extends Component
         $this->posts = $this->user->posts()->latest()->get();
         $this->followersCount = $this->user->followersCount();
         $this->followingCount = $this->user->followingCount();
+
+        // Load following users for follow button state
+        if (auth()->check()) {
+            $this->followingUsers = auth()->user()->following()->pluck('following_id')->toArray();
+        }
 
         // Only load saved posts and liked posts if viewing own profile
         if (auth()->check() && auth()->id() === $this->user->id) {
@@ -114,8 +123,43 @@ class UserProfile extends Component
         $this->postToDelete = null;
     }
 
+    public function toggleFollow($userId)
+    {
+        $currentUser = auth()->user();
+
+        if (!$currentUser) {
+            return redirect()->route('login');
+        }
+
+        if ($currentUser->id === $userId) {
+            return;
+        }
+
+        $user = User::findOrFail($userId);
+
+        if (in_array($userId, $this->followingUsers)) {
+            // Unfollow
+            $currentUser->unfollow($user);
+            $this->followingUsers = array_values(array_diff($this->followingUsers, [$userId]));
+        } else {
+            // Follow
+            $currentUser->follow($user);
+            $this->followingUsers[] = $userId;
+            // Send notification
+            $user->notify(new UserFollowed($currentUser));
+        }
+
+        // Update followers count
+        $this->followersCount = $this->user->followersCount();
+    }
+
+    public function isFollowing($userId)
+    {
+        return in_array($userId, $this->followingUsers);
+    }
+
     public function render()
     {
-        return view('livewire.profile.user-profile')->layout('components.layouts.app');
+        return view('livewire.profile.user-profile');
     }
 }
