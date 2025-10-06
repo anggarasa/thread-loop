@@ -139,6 +139,9 @@ class HomePage extends Component
         if (!in_array($postId, $this->showComments)) {
             $this->showComments[] = $postId;
         }
+
+        // Refresh the post in the posts collection to update the count
+        $this->refreshPostInCollection($postId);
     }
 
     public function isLiked($postId)

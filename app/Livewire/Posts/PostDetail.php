@@ -62,6 +62,9 @@ class PostDetail extends Component
         }
         $this->newComment = '';
         $this->showComments = true;
+
+        // Refresh the post to get updated comments_count
+        $this->post->refresh();
     }
 
     public function toggleComments()

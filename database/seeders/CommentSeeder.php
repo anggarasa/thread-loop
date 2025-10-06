@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class CommentSeeder extends Seeder
 {
@@ -89,6 +90,15 @@ class CommentSeeder extends Seeder
                 'content' => $additionalComments[array_rand($additionalComments)],
                 'created_at' => $randomPost->created_at->addMinutes(rand(10, 1440)),
             ]);
+        }
+
+        // Update comments_count untuk setiap post berdasarkan data di comments
+        foreach ($posts as $post) {
+            $actualCommentsCount = DB::table('comments')
+                ->where('post_id', $post->id)
+                ->count();
+
+            $post->update(['comments_count' => $actualCommentsCount]);
         }
     }
 }
