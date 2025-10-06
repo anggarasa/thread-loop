@@ -39,6 +39,13 @@ class PostLikeSeeder extends Seeder
                     ]);
                 }
             }
+
+            // Update likes_count untuk post ini berdasarkan data di post_likes
+            $actualLikesCount = DB::table('post_likes')
+                ->where('post_id', $post->id)
+                ->count();
+
+            $post->update(['likes_count' => $actualLikesCount]);
         }
     }
 }

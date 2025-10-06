@@ -82,7 +82,11 @@ class HomePage extends Component
         // Find and refresh the post in the posts collection
         foreach ($this->posts as $index => $post) {
             if ($post->id == $postId) {
-                $this->posts[$index] = Post::with('user')->find($postId);
+                // Get fresh data from database
+                $freshPost = Post::with('user')->find($postId);
+                if ($freshPost) {
+                    $this->posts[$index] = $freshPost;
+                }
                 break;
             }
         }

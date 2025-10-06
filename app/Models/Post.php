@@ -113,7 +113,10 @@ class Post extends Model
     {
         if ($this->isLikedBy($user)) {
             $this->likes()->detach($user->id);
-            $this->decrement('likes_count');
+            // Pastikan likes_count tidak menjadi negatif
+            if ($this->likes_count > 0) {
+                $this->decrement('likes_count');
+            }
         }
     }
 
