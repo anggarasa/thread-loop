@@ -10,7 +10,7 @@
                 </div>
 
                 <!-- Loading Overlay -->
-                <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
                     <div class="bg-white dark:bg-zinc-800 rounded-2xl p-8 max-w-sm mx-4 text-center">
                         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto mb-4"></div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Creating Post...</h3>
@@ -58,7 +58,7 @@
                     <!-- Media Upload Section -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3">
-                            Add Media <span class="text-red-500">*</span> (Required)
+                            Add Media <span class="text-gray-500">(Optional)</span>
                             </label>
 
                         <!-- File Input -->
@@ -81,7 +81,7 @@
                                     <p class="text-sm text-gray-500 dark:text-zinc-400 group-hover:text-gray-600 dark:group-hover:text-zinc-300 mt-2">
                                         <span class="font-medium">Click to upload</span> or drag and drop
                                     </p>
-                                    <p class="text-xs text-gray-400 dark:text-zinc-500 mt-1">Images or videos up to 10MB (Required)</p>
+                                    <p class="text-xs text-gray-400 dark:text-zinc-500 mt-1">Images or videos up to 10MB (Optional)</p>
                             </div>
                             </label>
                         </div>
@@ -284,13 +284,7 @@
                 return;
             }
 
-            // Check if media is selected
-            const mediaInput = document.getElementById('media');
-            if (!mediaInput.files || mediaInput.files.length === 0) {
-                e.preventDefault();
-                showError('Please select an image or video to upload.');
-                return;
-            }
+            // Media is optional, so no validation needed here
 
             // Show loading overlay for better UX
             showLoadingOverlay();

@@ -116,6 +116,7 @@
                                         class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
                                         type="button"
                                         onclick="copyShareLink({{ $post->id }})"
+                                        data-post-id="{{ $post->id }}"
                                         title="Share post"
                                     >
                                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -355,23 +356,26 @@
         const button = event.target.closest('button');
         const originalHTML = button.innerHTML;
 
+        // Get post ID from data attribute as fallback
+        const actualPostId = postId || button.dataset.postId;
+
         // Try modern clipboard API first (requires HTTPS)
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(url).then(function() {
                 showSuccessMessage(button, originalHTML);
                 // Fire server hook when copied
-                fetch(`{{ url('/share') }}/${postId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+                fetch(`{{ url('/share') }}/${actualPostId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
             }).catch(function(err) {
                 console.error('Clipboard API failed:', err);
-                fallbackCopyTextToClipboard(url, button, originalHTML);
+                fallbackCopyTextToClipboard(url, button, originalHTML, actualPostId);
             });
         } else {
             // Fallback for HTTP or older browsers
-            fallbackCopyTextToClipboard(url, button, originalHTML);
+            fallbackCopyTextToClipboard(url, button, originalHTML, actualPostId);
         }
     }
 
-    function fallbackCopyTextToClipboard(text, button, originalHTML) {
+    function fallbackCopyTextToClipboard(text, button, originalHTML, postId) {
         // Create a temporary textarea element
         const textArea = document.createElement("textarea");
         textArea.value = text;
@@ -391,13 +395,13 @@
             if (successful) {
                 showSuccessMessage(button, originalHTML);
                 // Fire server hook when copied
-                fetch(`{{ url('/share') }}/${(button.closest('[onclick]').onclick.toString().match(/copyShareLink\((\d+)\)/) || [null, postId])[1]}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+                fetch(`{{ url('/share') }}/${postId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
             } else {
-                showErrorMessage(button, originalHTML, text);
+                showErrorMessage(button, originalHTML, text, postId);
             }
         } catch (err) {
             console.error('Fallback copy failed:', err);
-            showErrorMessage(button, originalHTML, text);
+            showErrorMessage(button, originalHTML, text, postId);
         }
 
         document.body.removeChild(textArea);
@@ -419,7 +423,7 @@
         }, 2000);
     }
 
-    function showErrorMessage(button, originalHTML, url) {
+    function showErrorMessage(button, originalHTML, url, postId) {
         button.innerHTML = `
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -437,7 +441,7 @@
                 button.classList.remove('text-red-600', 'dark:text-red-400');
                 button.title = 'Share post';
                 button.onclick = function() {
-                    copyShareLink(button.dataset.postId || button.closest('[onclick]').onclick.toString().match(/copyShareLink\((\d+)\)/)[1]);
+                    copyShareLink(postId);
                 };
             }, 3000);
         };
