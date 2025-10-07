@@ -26,6 +26,31 @@ Route::middleware('prevent.authenticated')->group(function () {
 
 Route::get('/profile/{username}', UserProfile::class)->name('profile.show');
 
+// Error page testing routes (remove in production)
+Route::get('/test/404', function () {
+    abort(404);
+})->name('test.404');
+
+Route::get('/test/403', function () {
+    abort(403);
+})->name('test.403');
+
+Route::get('/test/419', function () {
+    abort(419);
+})->name('test.419');
+
+Route::get('/test/429', function () {
+    abort(429);
+})->name('test.429');
+
+Route::get('/test/500', function () {
+    abort(500);
+})->name('test.500');
+
+Route::get('/test/503', function () {
+    abort(503);
+})->name('test.503');
+
 // Public share route - accessible without authentication
 Route::get('/share/{post}', [ShareController::class, 'show'])->name('posts.share');
 // Copy event endpoint (auth optional). If authed and not owner, notify owner
