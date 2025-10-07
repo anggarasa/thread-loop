@@ -18,9 +18,11 @@ use App\Livewire\Guest\GuestSearchPage;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-// Guest routes (accessible without authentication)
-Route::get('/', GuestHomePage::class)->name('guest.home');
-Route::get('/search', GuestSearchPage::class)->name('guest.search');
+// Guest routes (accessible without authentication, but redirect authenticated users)
+Route::middleware('prevent.authenticated')->group(function () {
+    Route::get('/', GuestHomePage::class)->name('guest.home');
+    Route::get('/search', GuestSearchPage::class)->name('guest.search');
+});
 
 Route::get('/profile/{username}', UserProfile::class)->name('profile.show');
 
