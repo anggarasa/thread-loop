@@ -362,7 +362,7 @@
                             <a href="#" class="hover:underline">Locations</a>
                             <a href="#" class="hover:underline">Language</a>
                         </div>
-                        <p class="pt-2">© 2024 ThreadLoop</p>
+                        <p class="pt-2">© {{ date('Y') }} ThreadLoop</p>
                     </div>
                 </div>
             </div>

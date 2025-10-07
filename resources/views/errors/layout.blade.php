@@ -45,8 +45,8 @@
         </nav>
 
         <!-- Error Content -->
-        <main class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-            <div class="max-w-md w-full space-y-8">
+        <main class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
+            <div class="max-w-lg w-full space-y-6">
                 @yield('content')
             </div>
         </main>

@@ -741,11 +741,26 @@ textarea:focus {
 /* Responsive error page adjustments */
 @media (max-width: 640px) {
     .error-code {
+        @apply text-5xl;
+    }
+
+    .error-illustration {
+        @apply w-40 h-40;
+    }
+}
+
+/* Desktop error page adjustments */
+@media (min-width: 1024px) {
+    .error-page-container {
+        @apply py-4;
+    }
+
+    .error-code {
         @apply text-6xl;
     }
 
     .error-illustration {
-        @apply w-48 h-48;
+        @apply w-44 h-44;
     }
 }
 
