@@ -1,6 +1,6 @@
 /**
  * Simple and Robust Infinite Scroll & Video Autoplay
- * Fallback implementation for better compatibility
+ * Production-ready implementation without debug logs
  */
 
 class SimpleFeedManager {
@@ -9,7 +9,6 @@ class SimpleFeedManager {
         this.videoElements = new Map();
         this.scrollTimeout = null;
 
-        console.log("SimpleFeedManager: Initializing...");
         this.init();
     }
 
@@ -22,18 +21,13 @@ class SimpleFeedManager {
     }
 
     setup() {
-        console.log("SimpleFeedManager: Setting up...");
-
         this.setupVideoElements();
         this.setupInfiniteScroll();
         this.setupLivewireListeners();
-
-        console.log("SimpleFeedManager: Setup complete");
     }
 
     setupVideoElements() {
         const videos = document.querySelectorAll(".video-autoplay");
-        console.log(`SimpleFeedManager: Found ${videos.length} videos`);
 
         videos.forEach((video, index) => {
             this.setupVideo(video, index);
@@ -41,8 +35,6 @@ class SimpleFeedManager {
     }
 
     setupVideo(video, index) {
-        console.log(`SimpleFeedManager: Setting up video ${index + 1}`);
-
         // Set video properties
         video.playsInline = true;
         video.preload = "metadata";
@@ -62,24 +54,20 @@ class SimpleFeedManager {
 
         // Video events
         video.addEventListener("play", () => {
-            console.log("SimpleFeedManager: Video playing");
             this.videoElements.get(video).isPlaying = true;
             this.pauseOtherVideos(video);
         });
 
         video.addEventListener("pause", () => {
-            console.log("SimpleFeedManager: Video paused");
             this.videoElements.get(video).isPlaying = false;
         });
 
         video.addEventListener("ended", () => {
-            console.log("SimpleFeedManager: Video ended, looping...");
             video.currentTime = 0;
             video.play().catch(() => {});
         });
 
         video.addEventListener("error", (e) => {
-            console.warn("SimpleFeedManager: Video error:", e);
             this.videoElements.get(video).isPlaying = false;
         });
 
@@ -88,8 +76,6 @@ class SimpleFeedManager {
     }
 
     setupInfiniteScroll() {
-        console.log("SimpleFeedManager: Setting up infinite scroll...");
-
         // Throttled scroll handler
         const scrollHandler = () => {
             if (this.scrollTimeout) {
@@ -145,7 +131,6 @@ class SimpleFeedManager {
 
         // Check if we're near bottom (within 200px)
         if (scrollTop + windowHeight >= documentHeight - 200) {
-            console.log("SimpleFeedManager: Near bottom, loading more...");
             this.loadMoreContent();
         }
     }
@@ -155,27 +140,18 @@ class SimpleFeedManager {
         if (!videoData || videoData.isPlaying) return;
 
         try {
-            console.log("SimpleFeedManager: Attempting to play video");
             await video.play();
             videoData.isPlaying = true;
             videoData.hasPlayed = true;
-            console.log("SimpleFeedManager: Video playing successfully");
         } catch (error) {
-            console.log("SimpleFeedManager: Autoplay prevented:", error);
             // Try with muted if autoplay fails
             try {
                 video.muted = true;
                 await video.play();
                 videoData.isPlaying = true;
                 videoData.hasPlayed = true;
-                console.log(
-                    "SimpleFeedManager: Video playing with muted audio"
-                );
             } catch (mutedError) {
-                console.log(
-                    "SimpleFeedManager: Even muted autoplay failed:",
-                    mutedError
-                );
+                // Autoplay completely blocked
             }
         }
     }
@@ -184,7 +160,6 @@ class SimpleFeedManager {
         const videoData = this.videoElements.get(video);
         if (!videoData || !videoData.isPlaying) return;
 
-        console.log("SimpleFeedManager: Pausing video");
         video.pause();
         videoData.isPlaying = false;
     }
@@ -210,11 +185,8 @@ class SimpleFeedManager {
 
     loadMoreContent() {
         if (this.isLoading) {
-            console.log("SimpleFeedManager: Already loading, skipping...");
             return;
         }
-
-        console.log("SimpleFeedManager: Loading more content...");
 
         // Check if we're on a supported page
         const homePageElement = document.querySelector('[data-page="home"]');
@@ -223,14 +195,12 @@ class SimpleFeedManager {
         );
 
         if (!homePageElement && !searchPageElement) {
-            console.log("SimpleFeedManager: Not on supported page");
             return;
         }
 
         // Find Livewire component
         const wireElement = document.querySelector("[wire\\:id]");
         if (!wireElement) {
-            console.log("SimpleFeedManager: No Livewire component found");
             return;
         }
 
@@ -238,12 +208,10 @@ class SimpleFeedManager {
         const component = window.Livewire.find(wireId);
 
         if (!component) {
-            console.log("SimpleFeedManager: Livewire component not found");
             return;
         }
 
         if (component.loading) {
-            console.log("SimpleFeedManager: Component already loading");
             return;
         }
 
@@ -260,40 +228,29 @@ class SimpleFeedManager {
         }
 
         if (!hasMore) {
-            console.log("SimpleFeedManager: No more content to load");
             return;
         }
 
         this.isLoading = true;
-        console.log("SimpleFeedManager: Calling loadMore...");
 
         component
             .call("loadMore")
             .then(() => {
-                console.log("SimpleFeedManager: Load more successful");
                 this.isLoading = false;
                 // Refresh video elements after content loads
                 setTimeout(() => this.refreshVideoElements(), 100);
             })
             .catch((error) => {
-                console.error(
-                    "SimpleFeedManager: Error loading more content:",
-                    error
-                );
                 this.isLoading = false;
             });
     }
 
     refreshVideoElements() {
-        console.log("SimpleFeedManager: Refreshing video elements...");
-
         // Find new video elements
         const allVideos = document.querySelectorAll(".video-autoplay");
         const newVideos = Array.from(allVideos).filter(
             (video) => !this.videoElements.has(video)
         );
-
-        console.log(`SimpleFeedManager: Found ${newVideos.length} new videos`);
 
         newVideos.forEach((video, index) => {
             this.setupVideo(video, this.videoElements.size + index);
@@ -303,23 +260,17 @@ class SimpleFeedManager {
     setupLivewireListeners() {
         // Re-initialize on Livewire navigation
         document.addEventListener("livewire:navigated", () => {
-            console.log(
-                "SimpleFeedManager: Livewire navigated, reinitializing..."
-            );
             this.destroy();
             setTimeout(() => this.init(), 100);
         });
 
         // Refresh on Livewire updates
         document.addEventListener("livewire:updated", () => {
-            console.log("SimpleFeedManager: Livewire updated, refreshing...");
             this.refreshVideoElements();
         });
     }
 
     destroy() {
-        console.log("SimpleFeedManager: Destroying...");
-
         // Clear video elements
         this.videoElements.clear();
         this.isLoading = false;
@@ -333,13 +284,11 @@ class SimpleFeedManager {
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("SimpleFeedManager: DOM ready, initializing...");
     window.simpleFeedManager = new SimpleFeedManager();
 });
 
 // Re-initialize for Livewire navigation
 document.addEventListener("livewire:navigated", () => {
-    console.log("SimpleFeedManager: Livewire navigated, reinitializing...");
     if (window.simpleFeedManager) {
         window.simpleFeedManager.destroy();
     }
@@ -350,5 +299,3 @@ document.addEventListener("livewire:navigated", () => {
 
 // Export for global access
 window.SimpleFeedManager = SimpleFeedManager;
-
-console.log("SimpleFeedManager: Script loaded");
