@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'prevent.authenticated' => \App\Http\Middleware\PreventAuthenticatedAccess::class,
         ]);
+
+        // Trust all proxies for Vercel deployment
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Configure custom error pages

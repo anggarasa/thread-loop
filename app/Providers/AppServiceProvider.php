@@ -24,5 +24,8 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
+
+        // Ensure proper URL generation for email verification
+        URL::forceRootUrl(config('app.url'));
     }
 }
