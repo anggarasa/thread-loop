@@ -77,7 +77,6 @@
                         <div class="aspect-video bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center">
                             <video
                                 controls
-                                muted
                                 loop
                                 playsinline
                                 preload="metadata"

@@ -65,7 +65,6 @@
                                 <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
                                     <video
                                         controls
-                                        muted
                                         loop
                                         playsinline
                                         preload="metadata"

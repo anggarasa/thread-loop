@@ -111,7 +111,7 @@
                             @if($post->isImagePost() && $post->media_url)
                                 <img src="{{ $post->media_url }}" alt="Post" class="w-full h-full object-cover">
                             @elseif($post->isVideoPost() && $post->media_url)
-                                <video class="w-full h-full object-cover" muted>
+                                <video class="w-full h-full object-cover">
                                     <source src="{{ $post->media_url }}" type="video/mp4">
                                 </video>
                             @else

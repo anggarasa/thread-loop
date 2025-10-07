@@ -109,7 +109,7 @@ class ProfileController extends Controller
         try {
             // Validate the uploaded file
             $validator = Validator::make($request->all(), [
-                'profile_image' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:5024'],
+                'profile_image' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:4096'],
             ]);
 
             if ($validator->fails()) {

@@ -109,7 +109,7 @@
                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                         <span class="font-medium">Click to upload</span> or drag and drop
                     </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-500">PNG, JPG, JPEG up to 5MB</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-500">PNG, JPG, JPEG up to 4MB</p>
                 </div>
                 <input type="file" id="profileImageInput" accept="image/*" class="hidden">
             </div>
@@ -241,9 +241,9 @@
                 return;
             }
 
-            // Validate file size (5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                showError('File size must be less than 5MB.');
+            // Validate file size (4MB)
+            if (file.size > 4 * 1024 * 1024) {
+                showError('File size must be less than 4MB.');
                 return;
             }
 
