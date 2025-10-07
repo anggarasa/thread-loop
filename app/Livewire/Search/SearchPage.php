@@ -213,11 +213,11 @@ class SearchPage extends Component
         // Apply sorting
         $query->orderBy($this->getSortColumn(), $this->getSortDirection());
 
-        $newPosts = $query->skip(($this->page - 1) * 12)
-            ->limit(12)
+        $newPosts = $query->skip(($this->page - 1) * 15)
+            ->limit(15)
             ->get();
 
-        if ($newPosts->count() < 12) {
+        if ($newPosts->count() < 15) {
             $this->hasMorePosts = false;
         }
 
@@ -319,11 +319,11 @@ class SearchPage extends Component
         // Apply sorting
         $query->orderBy($this->getSortColumn(), $this->getSortDirection());
 
-        $newPosts = $query->skip(($this->page - 1) * 12)
-            ->limit(12)
+        $newPosts = $query->skip(($this->page - 1) * 15)
+            ->limit(15)
             ->get();
 
-        if ($newPosts->count() < 12) {
+        if ($newPosts->count() < 15) {
             $this->hasMorePosts = false;
         }
 

@@ -220,14 +220,14 @@ class HomePage extends Component
 
         $this->loading = true;
 
-        // Optimize: Use scope for efficient feed loading
+        // Optimize: Use scope for efficient feed loading with better performance
         $newPosts = Post::with(['user'])
             ->forFeed(30) // Use the new scope
-            ->skip(($this->page - 1) * 10)
-            ->limit(10)
+            ->skip(($this->page - 1) * 15) // Load more posts per batch for better UX
+            ->limit(15)
             ->get();
 
-        if ($newPosts->count() < 10) {
+        if ($newPosts->count() < 15) {
             $this->hasMorePosts = false;
         }
 

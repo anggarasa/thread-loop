@@ -1,2 +1,1 @@
-import "./video-autoplay.js";
-import "./infinite-scroll.js";
+import "./simple-feed-manager.js";

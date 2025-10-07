@@ -262,16 +262,38 @@
 
                                 @if($post->isImagePost() && $post->media_url)
                                     <!-- Post Image -->
-                                    <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                                    <div class="relative aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
                                         <img src="{{ $post->media_url }}" alt="Post image" class="w-full h-full object-cover">
+
+                                        <!-- Image info overlay -->
+                                        <div class="absolute bottom-2 right-2">
+                                            <a href="{{ route('posts.show', $post) }}" wire:navigate class="bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs hover:bg-opacity-70 transition-all">
+                                                View
+                                            </a>
+                                        </div>
                                     </div>
                                 @elseif($post->isVideoPost() && $post->media_url)
                                     <!-- Post Video -->
-                                    <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
-                                        <video controls class="w-full h-full object-cover">
+                                    <div class="relative aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                                        <video
+                                            loop
+                                            playsinline
+                                            preload="metadata"
+                                            class="w-full h-full object-cover video-autoplay cursor-pointer"
+                                            data-post-id="{{ $post->id }}"
+                                            onloadstart="this.style.opacity='0.8'"
+                                            oncanplay="this.style.opacity='1'"
+                                        >
                                             <source src="{{ $post->media_url }}" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
+
+                                        <!-- Video info overlay -->
+                                        <div class="absolute bottom-2 right-2">
+                                            <a href="{{ route('posts.show', $post) }}" wire:navigate class="bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs hover:bg-opacity-70 transition-all">
+                                                View
+                                            </a>
+                                        </div>
                                     </div>
                                 @elseif($post->isTextPost() && $post->content)
                                     <!-- Post Content -->
@@ -517,3 +539,60 @@
         </flux:modal>
     @endif
 </div>
+
+<!-- Enhanced Styles for Search Page -->
+<style>
+    /* Enhanced video autoplay styles */
+    .video-autoplay {
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .video-autoplay.loading {
+        opacity: 0.8;
+    }
+
+    .video-autoplay.playing {
+        opacity: 1;
+    }
+
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Loading indicator for infinite scroll */
+    .infinite-scroll-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    .infinite-scroll-loading .spinner {
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid #e5e7eb;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Search results grid optimization */
+    .search-results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .search-results-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

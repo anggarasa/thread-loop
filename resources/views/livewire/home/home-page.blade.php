@@ -82,30 +82,39 @@
 
                         @if($post->isImagePost() && $post->media_url)
                             <!-- Post Image -->
-                            <a href="{{ route('posts.show', $post) }}" wire:navigate class="block">
-                                <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
-                                    <img src="{{ $post->media_url }}" alt="Post image" class="w-full h-full object-cover">
+                            <div class="relative aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                                <img src="{{ $post->media_url }}" alt="Post image" class="w-full h-full object-cover">
+
+                                <!-- Image info overlay -->
+                                <div class="absolute bottom-2 right-2">
+                                    <a href="{{ route('posts.show', $post) }}" wire:navigate class="bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs hover:bg-opacity-70 transition-all">
+                                        View
+                                    </a>
                                 </div>
-                            </a>
+                            </div>
                         @elseif($post->isVideoPost() && $post->media_url)
                             <!-- Post Video -->
-                            <a href="{{ route('posts.show', $post) }}" wire:navigate class="block">
-                                <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
-                                    <video
-                                        controls
-                                        loop
-                                        playsinline
-                                        preload="metadata"
-                                        class="w-full h-full object-cover video-autoplay"
-                                        data-post-id="{{ $post->id }}"
-                                        onloadstart="this.style.opacity='0.8'"
-                                        oncanplay="this.style.opacity='1'"
-                                    >
-                                        <source src="{{ $post->media_url }}" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
+                            <div class="relative aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                                <video
+                                    loop
+                                    playsinline
+                                    preload="metadata"
+                                    class="w-full h-full object-cover video-autoplay cursor-pointer"
+                                    data-post-id="{{ $post->id }}"
+                                    onloadstart="this.style.opacity='0.8'"
+                                    oncanplay="this.style.opacity='1'"
+                                >
+                                    <source src="{{ $post->media_url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+
+                                <!-- Video info overlay -->
+                                <div class="absolute bottom-2 right-2">
+                                    <a href="{{ route('posts.show', $post) }}" wire:navigate class="bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs hover:bg-opacity-70 transition-all">
+                                        View
+                                    </a>
                                 </div>
-                            </a>
+                            </div>
                         @elseif($post->isTextPost() && $post->content)
                             <!-- Text Post Content -->
                             <a href="{{ route('posts.show', $post) }}" wire:navigate class="block">
@@ -255,10 +264,11 @@
                     </div>
                 @endforelse
 
-                <!-- Loading indicator -->
+                <!-- Enhanced loading indicator -->
                 @if($loading)
-                    <div class="flex justify-center py-8">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div class="infinite-scroll-loading">
+                        <div class="spinner"></div>
+                        <span class="ml-3 text-zinc-500 dark:text-zinc-400">Loading more posts...</span>
                     </div>
                 @endif
 
@@ -379,7 +389,7 @@
         display: none;
     }
 
-    /* Video autoplay styles */
+    /* Enhanced video autoplay styles */
     .video-autoplay {
         transition: opacity 0.3s ease-in-out;
     }
@@ -390,6 +400,33 @@
 
     .video-autoplay.playing {
         opacity: 1;
+    }
+
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Loading indicator for infinite scroll */
+    .infinite-scroll-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    .infinite-scroll-loading .spinner {
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid #e5e7eb;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 
