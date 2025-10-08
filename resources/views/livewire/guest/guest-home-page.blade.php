@@ -70,7 +70,7 @@
                                 <video
                                     loop
                                     playsinline
-                                    preload="metadata"
+                                    preload="none"
                                     class="w-full h-full object-cover video-autoplay cursor-pointer"
                                     data-post-id="{{ $post->id }}"
                                     onloadstart="this.style.opacity='0.8'"
@@ -227,27 +227,26 @@
             </div>
 
     <!-- Custom Styles -->
-<style>
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
+    <style>
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
 
-    /* Video autoplay styles */
-    .video-autoplay {
-        transition: opacity 0.3s ease-in-out;
-    }
+        /* Video autoplay styles */
+        .video-autoplay {
+            transition: opacity 0.3s ease-in-out;
+        }
 
-    .video-autoplay.loading {
-        opacity: 0.8;
-    }
+        .video-autoplay.loading {
+            opacity: 0.8;
+        }
 
-    .video-autoplay.playing {
-        opacity: 1;
-    }
-</style>
-
+        .video-autoplay.playing {
+            opacity: 1;
+        }
+    </style>
 </div>

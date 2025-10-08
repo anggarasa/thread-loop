@@ -278,7 +278,7 @@
                                         <video
                                             loop
                                             playsinline
-                                            preload="metadata"
+                                            preload="none"
                                             class="w-full h-full object-cover video-autoplay cursor-pointer"
                                             data-post-id="{{ $post->id }}"
                                             onloadstart="this.style.opacity='0.8'"
@@ -538,61 +538,61 @@
             </div>
         </flux:modal>
     @endif
-</div>
 
-<!-- Enhanced Styles for Search Page -->
-<style>
-    /* Enhanced video autoplay styles */
-    .video-autoplay {
-        transition: opacity 0.3s ease-in-out;
-    }
-
-    .video-autoplay.loading {
-        opacity: 0.8;
-    }
-
-    .video-autoplay.playing {
-        opacity: 1;
-    }
-
-    /* Smooth scroll behavior */
-    html {
-        scroll-behavior: smooth;
-    }
-
-    /* Loading indicator for infinite scroll */
-    .infinite-scroll-loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-    }
-
-    .infinite-scroll-loading .spinner {
-        width: 2rem;
-        height: 2rem;
-        border: 2px solid #e5e7eb;
-        border-top: 2px solid #3b82f6;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Search results grid optimization */
-    .search-results-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 640px) {
-        .search-results-grid {
-            grid-template-columns: 1fr;
+    <!-- Enhanced Styles for Search Page -->
+    <style>
+        /* Enhanced video autoplay styles */
+        .video-autoplay {
+            transition: opacity 0.3s ease-in-out;
         }
-    }
-</style>
+
+        .video-autoplay.loading {
+            opacity: 0.8;
+        }
+
+        .video-autoplay.playing {
+            opacity: 1;
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading indicator for infinite scroll */
+        .infinite-scroll-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .infinite-scroll-loading .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Search results grid optimization */
+        .search-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .search-results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</div>

@@ -54,12 +54,18 @@ class SimpleFeedManager {
 
         // Video events
         video.addEventListener("play", () => {
-            this.videoElements.get(video).isPlaying = true;
-            this.pauseOtherVideos(video);
+            const videoData = this.videoElements.get(video);
+            if (videoData) {
+                videoData.isPlaying = true;
+                this.pauseOtherVideos(video);
+            }
         });
 
         video.addEventListener("pause", () => {
-            this.videoElements.get(video).isPlaying = false;
+            const videoData = this.videoElements.get(video);
+            if (videoData) {
+                videoData.isPlaying = false;
+            }
         });
 
         video.addEventListener("ended", () => {
@@ -68,7 +74,10 @@ class SimpleFeedManager {
         });
 
         video.addEventListener("error", (e) => {
-            this.videoElements.get(video).isPlaying = false;
+            const videoData = this.videoElements.get(video);
+            if (videoData) {
+                videoData.isPlaying = false;
+            }
         });
 
         // Initial visibility check

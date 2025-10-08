@@ -98,7 +98,7 @@
                                 <video
                                     loop
                                     playsinline
-                                    preload="metadata"
+                                    preload="none"
                                     class="w-full h-full object-cover video-autoplay cursor-pointer"
                                     data-post-id="{{ $post->id }}"
                                     onloadstart="this.style.opacity='0.8'"
@@ -380,183 +380,182 @@
     </div>
 
     <!-- Custom Styles -->
-<style>
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-
-    /* Enhanced video autoplay styles */
-    .video-autoplay {
-        transition: opacity 0.3s ease-in-out;
-    }
-
-    .video-autoplay.loading {
-        opacity: 0.8;
-    }
-
-    .video-autoplay.playing {
-        opacity: 1;
-    }
-
-    /* Smooth scroll behavior */
-    html {
-        scroll-behavior: smooth;
-    }
-
-    /* Loading indicator for infinite scroll */
-    .infinite-scroll-loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-    }
-
-    .infinite-scroll-loading .spinner {
-        width: 2rem;
-        height: 2rem;
-        border: 2px solid #e5e7eb;
-        border-top: 2px solid #3b82f6;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-</style>
-
-<script>
-    function copyShareLink(postId) {
-        const url = `{{ url('/share') }}/${postId}`;
-        const button = event.target.closest('button');
-        const originalHTML = button.innerHTML;
-
-        // Get post ID from data attribute as fallback
-        const actualPostId = postId || button.dataset.postId;
-
-        // Try modern clipboard API first (requires HTTPS)
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(url).then(function() {
-                showSuccessMessage(button, originalHTML);
-                // Fire server hook when copied
-                fetch(`{{ url('/share') }}/${actualPostId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
-            }).catch(function(err) {
-                console.error('Clipboard API failed:', err);
-                fallbackCopyTextToClipboard(url, button, originalHTML, actualPostId);
-            });
-        } else {
-            // Fallback for HTTP or older browsers
-            fallbackCopyTextToClipboard(url, button, originalHTML, actualPostId);
+    <style>
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-    }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
 
-    function fallbackCopyTextToClipboard(text, button, originalHTML, postId) {
-        // Create a temporary textarea element
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
+        /* Enhanced video autoplay styles */
+        .video-autoplay {
+            transition: opacity 0.3s ease-in-out;
+        }
 
-        // Avoid scrolling to bottom
-        textArea.style.top = "0";
-        textArea.style.left = "0";
-        textArea.style.position = "fixed";
-        textArea.style.opacity = "0";
+        .video-autoplay.loading {
+            opacity: 0.8;
+        }
 
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
+        .video-autoplay.playing {
+            opacity: 1;
+        }
 
-        try {
-            const successful = document.execCommand('copy');
-            if (successful) {
-                showSuccessMessage(button, originalHTML);
-                // Fire server hook when copied
-                fetch(`{{ url('/share') }}/${postId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading indicator for infinite scroll */
+        .infinite-scroll-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .infinite-scroll-loading .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        function copyShareLink(postId) {
+            const url = `{{ url('/share') }}/${postId}`;
+            const button = event.target.closest('button');
+            const originalHTML = button.innerHTML;
+
+            // Get post ID from data attribute as fallback
+            const actualPostId = postId || button.dataset.postId;
+
+            // Try modern clipboard API first (requires HTTPS)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function() {
+                    showSuccessMessage(button, originalHTML);
+                    // Fire server hook when copied
+                    fetch(`{{ url('/share') }}/${actualPostId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+                }).catch(function(err) {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopyTextToClipboard(url, button, originalHTML, actualPostId);
+                });
             } else {
+                // Fallback for HTTP or older browsers
+                fallbackCopyTextToClipboard(url, button, originalHTML, actualPostId);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text, button, originalHTML, postId) {
+            // Create a temporary textarea element
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showSuccessMessage(button, originalHTML);
+                    // Fire server hook when copied
+                    fetch(`{{ url('/share') }}/${postId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+                } else {
+                    showErrorMessage(button, originalHTML, text, postId);
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
                 showErrorMessage(button, originalHTML, text, postId);
             }
-        } catch (err) {
-            console.error('Fallback copy failed:', err);
-            showErrorMessage(button, originalHTML, text, postId);
+
+            document.body.removeChild(textArea);
         }
 
-        document.body.removeChild(textArea);
-    }
+        function showSuccessMessage(button, originalHTML) {
+            button.innerHTML = `
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            `;
+            button.classList.add('text-green-600', 'dark:text-green-400');
+            button.title = 'Link copied!';
 
-    function showSuccessMessage(button, originalHTML) {
-        button.innerHTML = `
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-        `;
-        button.classList.add('text-green-600', 'dark:text-green-400');
-        button.title = 'Link copied!';
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('text-green-600', 'dark:text-green-400');
+                button.title = 'Share post';
+            }, 2000);
+        }
 
-        setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove('text-green-600', 'dark:text-green-400');
-            button.title = 'Share post';
-        }, 2000);
-    }
+        function showErrorMessage(button, originalHTML, url, postId) {
+            button.innerHTML = `
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+            `;
+            button.classList.add('text-red-600', 'dark:text-red-400');
+            button.title = 'Click to copy manually';
 
-    function showErrorMessage(button, originalHTML, url, postId) {
-        button.innerHTML = `
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-            </svg>
-        `;
-        button.classList.add('text-red-600', 'dark:text-red-400');
-        button.title = 'Click to copy manually';
+            // Add click handler to copy manually
+            button.onclick = function(e) {
+                e.preventDefault();
+                prompt('Copy this link:', url);
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('text-red-600', 'dark:text-red-400');
+                    button.title = 'Share post';
+                    button.onclick = function() {
+                        copyShareLink(postId);
+                    };
+                }, 3000);
+            };
 
-        // Add click handler to copy manually
-        button.onclick = function(e) {
-            e.preventDefault();
-            prompt('Copy this link:', url);
             setTimeout(() => {
                 button.innerHTML = originalHTML;
                 button.classList.remove('text-red-600', 'dark:text-red-400');
                 button.title = 'Share post';
-                button.onclick = function() {
-                    copyShareLink(postId);
-                };
-            }, 3000);
-        };
+            }, 5000);
+        }
+    </script>
 
-        setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove('text-red-600', 'dark:text-red-400');
-            button.title = 'Share post';
-        }, 5000);
-    }
-</script>
+    <!-- Delete Post Confirmation Modal -->
+    @if($postToDelete)
+        <flux:modal name="delete-post-{{ $postToDelete }}" class="min-w-[22rem]" :closable="false" :dismissible="false">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Delete post?</flux:heading>
+                    <flux:text class="mt-2">
+                        <p>You're about to delete this post.</p>
+                        <p>This action cannot be reversed.</p>
+                    </flux:text>
+                </div>
 
-<!-- Delete Post Confirmation Modal -->
-@if($postToDelete)
-    <flux:modal name="delete-post-{{ $postToDelete }}" class="min-w-[22rem]" :closable="false" :dismissible="false">
-        <div class="space-y-6">
-            <div>
-                <flux:heading size="lg">Delete post?</flux:heading>
-                <flux:text class="mt-2">
-                    <p>You're about to delete this post.</p>
-                    <p>This action cannot be reversed.</p>
-                </flux:text>
+                <div class="flex gap-2">
+                    <flux:spacer />
+                    <flux:modal.close>
+                        <flux:button wire:click="cancelDeletePost" variant="ghost">Cancel</flux:button>
+                    </flux:modal.close>
+                    <flux:button wire:click="confirmDeletePost" variant="danger">
+                        Delete post
+                    </flux:button>
+                </div>
             </div>
-
-            <div class="flex gap-2">
-                <flux:spacer />
-                <flux:modal.close>
-                    <flux:button wire:click="cancelDeletePost" variant="ghost">Cancel</flux:button>
-                </flux:modal.close>
-                <flux:button wire:click="confirmDeletePost" variant="danger">
-                    Delete post
-                </flux:button>
-            </div>
-        </div>
-    </flux:modal>
-@endif
-
+        </flux:modal>
+    @endif
 </div>

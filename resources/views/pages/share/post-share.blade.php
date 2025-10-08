@@ -79,7 +79,7 @@
                                 controls
                                 loop
                                 playsinline
-                                preload="metadata"
+                                preload="none"
                                 class="w-full h-full"
                             >
                                 <source src="{{ $post->media_url }}" type="video/mp4">

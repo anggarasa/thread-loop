@@ -35,7 +35,7 @@
                             controls
                             loop
                             playsinline
-                            preload="metadata"
+                            preload="none"
                             class="w-full h-full video-autoplay"
                             data-post-id="{{ $post->id }}"
                         >
