@@ -4,7 +4,11 @@ namespace App\Livewire\Search;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Comment;
 use App\Notifications\UserFollowed;
+use App\Notifications\PostCommented;
+use App\Notifications\PostLiked;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class SearchPage extends Component
@@ -25,6 +29,13 @@ class SearchPage extends Component
     public $hasMoreUsers = true;
     public $loading = false;
 
+    // Like and save functionality
+    public $likedPosts = [];
+    public $savedPosts = [];
+    public $showComments = [];
+    public $newComments = [];
+    public $comments = [];
+
     // Follow functionality
     public $followingUsers = [];
 
@@ -39,14 +50,29 @@ class SearchPage extends Component
 
     public function mount()
     {
-        // Initialize follow state
         $userId = auth()->id();
         if ($userId) {
-            $this->followingUsers = \Illuminate\Support\Facades\DB::table('follows')
+            // Initialize like and save state
+            $this->likedPosts = DB::table('post_likes')
+                ->where('user_id', $userId)
+                ->pluck('post_id')
+                ->toArray();
+
+            $this->savedPosts = DB::table('saved_posts')
+                ->where('user_id', $userId)
+                ->pluck('post_id')
+                ->toArray();
+
+            // Initialize follow state
+            $this->followingUsers = DB::table('follows')
                 ->where('follower_id', $userId)
                 ->pluck('following_id')
                 ->toArray();
         }
+
+        // Initialize comments visibility
+        $this->showComments = [];
+        $this->newComments = [];
 
         $this->loadInitialData();
     }
@@ -507,6 +533,130 @@ class SearchPage extends Component
         return in_array($userId, $this->followingUsers);
     }
 
+    public function toggleLike($postId)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return;
+        }
+
+        $post = Post::findOrFail($postId);
+
+        // Check the actual database state instead of relying on the array
+        $isCurrentlyLiked = $post->isLikedBy($user);
+
+        if ($isCurrentlyLiked) {
+            // Post is currently liked, so unlike it
+            $post->unlike($user);
+            // Remove from likedPosts array
+            $this->likedPosts = array_values(array_diff($this->likedPosts, [$postId]));
+        } else {
+            // Post is not currently liked, so like it
+            $post->like($user);
+            // Add to likedPosts array
+            $this->likedPosts[] = $postId;
+            // Send notification if not self-liking
+            if ($post->user_id !== $user->id) {
+                $post->user->notify(new PostLiked($user, $post));
+            }
+        }
+
+        // Refresh the post in the posts collection to update the count
+        $this->refreshPostInCollection($postId);
+    }
+
+    private function refreshPostInCollection($postId)
+    {
+        // Find and refresh the post in the posts collection
+        $postsArray = collect($this->posts)->toArray();
+        foreach ($postsArray as $index => $post) {
+            if ($post->id == $postId) {
+                // Get fresh data from database
+                $freshPost = Post::with('user')->find($postId);
+                if ($freshPost) {
+                    $postsArray[$index] = $freshPost;
+                    $this->posts = collect($postsArray);
+                }
+                break;
+            }
+        }
+    }
+
+    public function isLiked($postId)
+    {
+        return in_array($postId, $this->likedPosts);
+    }
+
+    public function toggleSave($postId)
+    {
+        $post = Post::findOrFail($postId);
+
+        if (in_array($postId, $this->savedPosts)) {
+            $post->unsaveBy(auth()->user());
+            $this->savedPosts = array_diff($this->savedPosts, [$postId]);
+        } else {
+            $post->saveBy(auth()->user());
+            $this->savedPosts[] = $postId;
+        }
+    }
+
+    public function isSaved($postId)
+    {
+        return in_array($postId, $this->savedPosts);
+    }
+
+    public function toggleComments($postId)
+    {
+        if (in_array($postId, $this->showComments)) {
+            $this->showComments = array_diff($this->showComments, [$postId]);
+        } else {
+            $this->showComments[] = $postId;
+            $this->loadComments($postId);
+        }
+    }
+
+    public function loadComments($postId)
+    {
+        $this->comments[$postId] = Comment::where('post_id', $postId)
+            ->with('user')
+            ->latest()
+            ->limit(5)
+            ->get();
+    }
+
+    public function addComment($postId)
+    {
+        $this->validate([
+            "newComments.{$postId}" => 'required|string|max:500',
+        ]);
+
+        $post = Post::findOrFail($postId);
+
+        $comment = $post->comments()->create([
+            'user_id' => auth()->id(),
+            'content' => $this->newComments[$postId],
+        ]);
+
+        $post->increment('comments_count');
+        if ($post->user_id !== auth()->id()) {
+            $post->user->notify(new PostCommented(auth()->user(), $post, $comment));
+        }
+
+        // Clear the input
+        $this->newComments[$postId] = '';
+
+        // Reload comments for this post
+        $this->loadComments($postId);
+
+        // Show comments if not already shown
+        if (!in_array($postId, $this->showComments)) {
+            $this->showComments[] = $postId;
+        }
+
+        // Refresh the post in the posts collection to update the count
+        $this->refreshPostInCollection($postId);
+    }
+
     public function deletePost($postId)
     {
         $post = Post::findOrFail($postId);
@@ -543,6 +693,19 @@ class SearchPage extends Component
             $this->posts = collect($this->posts)->reject(function ($p) {
                 return $p->id == $this->postToDelete;
             });
+
+            // Remove from liked posts if it was liked
+            $this->likedPosts = array_values(array_diff($this->likedPosts, [$this->postToDelete]));
+
+            // Remove from saved posts if it was saved
+            $this->savedPosts = array_values(array_diff($this->savedPosts, [$this->postToDelete]));
+
+            // Remove from comments if it was showing comments
+            $this->showComments = array_values(array_diff($this->showComments, [$this->postToDelete]));
+
+            // Remove comments data
+            unset($this->comments[$this->postToDelete]);
+            unset($this->newComments[$this->postToDelete]);
 
             $this->postToDelete = null;
             session()->flash('success', 'Post deleted successfully.');

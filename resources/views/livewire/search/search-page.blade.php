@@ -212,10 +212,10 @@
                 </div>
 
                 @if($activeTab === 'posts')
-                    <!-- Grid Layout for Posts -->
-                    <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Single Column Layout for Posts -->
+                    <div id="posts-container" class="space-y-6">
                         @forelse($posts as $post)
-                            <a href="{{ route('posts.show', $post) }}" wire:navigate class="block overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow duration-200">
+                            <div class="overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow duration-200">
                                 <!-- Post Header -->
                                 <div class="flex items-center justify-between p-4">
                                     <div class="flex items-center space-x-3">
@@ -297,84 +297,171 @@
                                     </div>
                                 @elseif($post->isTextPost() && $post->content)
                                     <!-- Post Content -->
-                                    <div class="px-4 pb-4">
-                                        <p class="text-zinc-900 dark:text-white leading-relaxed line-clamp-3">
-                                            {{ $post->content }}
-                                        </p>
-                                    </div>
+                                    <a href="{{ route('posts.show', $post) }}" wire:navigate class="block">
+                                        <div class="px-4 pb-4">
+                                            <p class="text-zinc-900 dark:text-white leading-relaxed">
+                                                {{ $post->content }}
+                                            </p>
+                                        </div>
+                                    </a>
                                 @endif
 
                                 <!-- Post Actions -->
                                 <div class="p-4">
                                     <div class="flex items-center justify-between mb-3">
                                         <div class="flex items-center space-x-4">
-                                            <button class="text-zinc-600 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 transition-colors">
-                                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <button
+                                                wire:click="toggleLike({{ $post->id }})"
+                                                class="transition-colors {{ $this->isLiked($post->id) ? 'text-red-500 dark:text-red-400' : 'text-zinc-600 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400' }}"
+                                                type="button"
+                                            >
+                                                <svg class="h-6 w-6 {{ $this->isLiked($post->id) ? 'fill-current' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                                 </svg>
                                             </button>
-                                            <button class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
+                                            <button
+                                                wire:click="toggleComments({{ $post->id }})"
+                                                class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+                                                type="button"
+                                            >
                                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                                 </svg>
                                             </button>
-                                            <button class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
+                                            <button
+                                                class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+                                                type="button"
+                                                onclick="copyShareLink({{ $post->id }})"
+                                                data-post-id="{{ $post->id }}"
+                                                title="Share post"
+                                            >
                                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
                                                 </svg>
                                             </button>
                                         </div>
-                                        <button class="text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <button
+                                            wire:click="toggleSave({{ $post->id }})"
+                                            class="text-zinc-600 hover:text-blue-500 dark:text-zinc-400 dark:hover:text-blue-400 transition-colors {{ $this->isSaved($post->id) ? 'text-blue-500 dark:text-blue-400' : '' }}"
+                                            type="button"
+                                        >
+                                            <svg class="h-6 w-6 {{ $this->isSaved($post->id) ? 'fill-current text-blue-500 dark:text-blue-400' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                             </svg>
                                         </button>
                                     </div>
 
-                                    <!-- Post Stats -->
-                                    <div class="flex items-center space-x-4 text-sm text-zinc-500 dark:text-zinc-400">
-                                        <span>{{ $post->likes_count }} likes</span>
-                                        <span>{{ $post->comments_count }} comments</span>
+                                    <!-- Likes -->
+                                    <p class="text-sm font-semibold text-zinc-900 dark:text-white mb-1">{{ number_format($post->likes_count) }} {{ Str::plural('like', $post->likes_count) }}</p>
+
+                                    <!-- Caption -->
+                                    @if($post->content)
+                                        <div class="text-sm text-zinc-900 dark:text-white">
+                                            <span class="font-semibold">{{ $post->user->username ?? $post->user->name }}</span>
+                                            <span class="ml-2">{{ $post->content }}</span>
+                                        </div>
+                                    @endif
+
+                                    <!-- Comments Toggle -->
+                                    @if($post->comments_count > 0)
+                                        <button
+                                            wire:click="toggleComments({{ $post->id }})"
+                                            class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+                                            type="button"
+                                        >
+                                            @if(in_array($post->id, $showComments))
+                                                Hide comments
+                                            @else
+                                                View all {{ $post->comments_count }} {{ Str::plural('comment', $post->comments_count) }}
+                                            @endif
+                                        </button>
+                                    @endif
+
+                                    <!-- Comments Section -->
+                                    @if(in_array($post->id, $showComments))
+                                        <div class="mt-3 space-y-3">
+                                            @if(isset($comments[$post->id]))
+                                                @foreach($comments[$post->id] as $comment)
+                                                    <div class="flex items-start space-x-3">
+                                                        <div class="h-6 w-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center flex-shrink-0">
+                                                            <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ substr($comment->user->name, 0, 1) }}</span>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <div class="text-sm">
+                                                                <span class="font-semibold text-zinc-900 dark:text-white">{{ $comment->user->username ?? $comment->user->name }}</span>
+                                                                <span class="text-zinc-900 dark:text-white ml-2">{{ $comment->content }}</span>
+                                                            </div>
+                                                            <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                                                {{ $comment->created_at->diffForHumans() }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    @endif
+
+                                    <!-- Add Comment -->
+                                    <div class="mt-3 flex items-center space-x-3">
+                                        <div class="h-8 w-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                                            <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <input
+                                                type="text"
+                                                wire:model="newComments.{{ $post->id }}"
+                                                wire:keydown.enter="addComment({{ $post->id }})"
+                                                placeholder="Add a comment..."
+                                                class="w-full bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400 focus:outline-none"
+                                            >
+                                        </div>
+                                        <button
+                                            wire:click="addComment({{ $post->id }})"
+                                            class="text-sm font-semibold text-blue-500 hover:text-blue-600"
+                                            type="button"
+                                        >
+                                            Post
+                                        </button>
                                     </div>
                                 </div>
-                            </a>
-                        @empty
-                        <div class="col-span-full flex items-center justify-center min-h-[400px] w-full">
-                            <div class="text-center">
-                                <div class="mx-auto w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
-                                    <svg class="w-12 h-12 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.709M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-xl font-semibold text-zinc-900 dark:text-white mb-3">No posts found</h3>
-                                <p class="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">Try adjusting your search terms or filters to find what you're looking for.</p>
                             </div>
-                        </div>
-                    @endforelse
+                        @empty
+                            <div class="flex items-center justify-center min-h-[400px] w-full">
+                                <div class="text-center">
+                                    <div class="mx-auto w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
+                                        <svg class="w-12 h-12 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.709M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-white mb-3">No posts found</h3>
+                                    <p class="text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">Try adjusting your search terms or filters to find what you're looking for.</p>
+                                </div>
+                            </div>
+                        @endforelse
 
-                    <!-- Loading indicator -->
-                    @if($loading)
-                        <div class="col-span-full flex justify-center py-8">
-                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        </div>
-                    @endif
+                        <!-- Loading indicator -->
+                        @if($loading)
+                            <div class="flex justify-center py-8">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            </div>
+                        @endif
 
-                    <!-- Load more button -->
-                    @if($hasMorePosts && !$loading && $posts->count() > 0)
-                        <div class="col-span-full flex justify-center py-8">
-                            <flux:button
-                                wire:click="loadMore"
-                                variant="primary"
-                                class="px-6 py-2"
-                            >
-                                Load More Posts
-                            </flux:button>
-                        </div>
-                    @elseif(!$hasMorePosts && $posts->count() > 0)
-                        <div class="col-span-full text-center py-8">
-                            <p class="text-zinc-500 dark:text-zinc-400">No more posts to load</p>
-                        </div>
-                    @endif
+                        <!-- Load more button -->
+                        @if($hasMorePosts && !$loading && $posts->count() > 0)
+                            <div class="flex justify-center py-8">
+                                <flux:button
+                                    wire:click="loadMore"
+                                    variant="primary"
+                                    class="px-6 py-2"
+                                >
+                                    Load More Posts
+                                </flux:button>
+                            </div>
+                        @elseif(!$hasMorePosts && $posts->count() > 0)
+                            <div class="text-center py-8">
+                                <p class="text-zinc-500 dark:text-zinc-400">No more posts to load</p>
+                            </div>
+                        @endif
                 @else
                     <div id="users-container" class="space-y-6">
                         @forelse($users as $user)
@@ -581,18 +668,152 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Search results grid optimization */
-        .search-results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+        /* Search results optimization */
+        #posts-container {
+            max-width: 100%;
         }
 
-        /* Responsive adjustments */
+        /* Responsive adjustments for better mobile experience */
         @media (max-width: 640px) {
-            .search-results-grid {
-                grid-template-columns: 1fr;
+            .min-h-screen {
+                padding: 1rem;
+            }
+
+            .mx-auto.max-w-7xl {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            /* Improve card spacing on mobile */
+            .space-y-6 > * + * {
+                margin-top: 1rem;
+            }
+
+            /* Better button spacing */
+            .flex.items-center.space-x-4 > * + * {
+                margin-left: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Even tighter spacing for very small screens */
+            .p-4 {
+                padding: 0.75rem;
+            }
+
+            .px-4 {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+
+            .py-4 {
+                padding-top: 0.75rem;
+                padding-bottom: 0.75rem;
             }
         }
     </style>
+
+    <script>
+        function copyShareLink(postId) {
+            const url = `{{ url('/share') }}/${postId}`;
+            const button = event.target.closest('button');
+            const originalHTML = button.innerHTML;
+
+            // Get post ID from data attribute as fallback
+            const actualPostId = postId || button.dataset.postId;
+
+            // Try modern clipboard API first (requires HTTPS)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function() {
+                    showSuccessMessage(button, originalHTML);
+                    // Fire server hook when copied
+                    fetch(`{{ url('/share') }}/${actualPostId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+                }).catch(function(err) {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopyTextToClipboard(url, button, originalHTML, actualPostId);
+                });
+            } else {
+                // Fallback for HTTP or older browsers
+                fallbackCopyTextToClipboard(url, button, originalHTML, actualPostId);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text, button, originalHTML, postId) {
+            // Create a temporary textarea element
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showSuccessMessage(button, originalHTML);
+                    // Fire server hook when copied
+                    fetch(`{{ url('/share') }}/${postId}/copied`, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } });
+                } else {
+                    showErrorMessage(button, originalHTML, text, postId);
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showErrorMessage(button, originalHTML, text, postId);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function showSuccessMessage(button, originalHTML) {
+            button.innerHTML = `
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            `;
+            button.classList.add('text-green-600', 'dark:text-green-400');
+            button.title = 'Link copied!';
+
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('text-green-600', 'dark:text-green-400');
+                button.title = 'Share post';
+            }, 2000);
+        }
+
+        function showErrorMessage(button, originalHTML, url, postId) {
+            button.innerHTML = `
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+            `;
+            button.classList.add('text-red-600', 'dark:text-red-400');
+            button.title = 'Click to copy manually';
+
+            // Add click handler to copy manually
+            button.onclick = function(e) {
+                e.preventDefault();
+                prompt('Copy this link:', url);
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('text-red-600', 'dark:text-red-400');
+                    button.title = 'Share post';
+                    button.onclick = function() {
+                        copyShareLink(postId);
+                    };
+                }, 3000);
+            };
+
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('text-red-600', 'dark:text-red-400');
+                button.title = 'Share post';
+            }, 5000);
+        }
+    </script>
 </div>
