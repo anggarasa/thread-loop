@@ -38,14 +38,14 @@ class PostController extends Controller
             // Enhanced validation
             $request->validate([
                 'content' => 'required|string|max:500|min:1',
-                'media' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:4096', // Made required
+                'media' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // Made required
             ], [
                 'content.required' => 'Post content is required.',
                 'content.max' => 'Post content cannot exceed 500 characters.',
                 'content.min' => 'Post content must be at least 1 character.',
                 'media.required' => 'Media upload is required.',
                 'media.mimes' => 'Only JPEG, PNG, JPG, GIF, MP4, MOV, and AVI files are allowed.',
-                'media.max' => 'File size cannot exceed 4MB.',
+                'media.max' => 'File size cannot exceed 10MB.',
             ]);
 
             // Media is now required, so no need for this check
