@@ -118,18 +118,22 @@ class PostController extends Controller
             // Record successful post creation for rate limiting
             RateLimiter::hit($rateLimitKey, 60); // 1 minute decay
 
+            // Create success message with View Post link
+            $viewPostUrl = route('posts.show', $post);
+            $successMessage = 'Post created successfully! <a href="' . $viewPostUrl . '" class="underline font-semibold hover:text-green-800 dark:hover:text-green-200 transition-colors">View Post</a>';
+
             // Check if this is an AJAX request
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Post created successfully!',
+                    'message' => $successMessage,
                     'redirect_url' => route('homePage')
                 ]);
             }
 
             // Regular form submission - redirect with success message
             return redirect()->route('homePage')
-                ->with('success', 'Post created successfully!');
+                ->with('success', $successMessage);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
