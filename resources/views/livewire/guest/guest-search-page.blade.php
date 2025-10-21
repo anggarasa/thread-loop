@@ -139,13 +139,7 @@
                             <!-- Post Header -->
                             <div class="flex items-center justify-between p-4">
                                 <div class="flex items-center space-x-3">
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
-                                        <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                                            <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                                <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-300">{{ $post->user->initials() }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <x-user-avatar :user="$post->user" size="md" />
                                     <div class="flex-1 min-w-0">
                                         <h3 class="font-semibold text-zinc-900 dark:text-white">{{ Str::limit($post->user->username, 15, '...') ?? Str::limit($post->user->name, 15, '...') }}</h3>
                                         <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>
@@ -250,13 +244,7 @@
                         <div class="overflow-hidden rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:shadow-md transition-shadow duration-200">
                             <div class="p-6">
                                 <div class="flex items-center space-x-4">
-                                    <div class="h-16 w-16 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
-                                        <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                                            <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                                <span class="text-xl font-semibold text-zinc-600 dark:text-zinc-300">{{ $user->initials() }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <x-user-avatar :user="$user" size="xl" />
                                     <div class="flex-1 min-w-0">
                                         <a href="{{ route('login') }}" wire:navigate class="text-lg font-semibold text-zinc-900 dark:text-white truncate hover:underline">
                                             {{ $user->name }}

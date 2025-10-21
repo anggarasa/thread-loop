@@ -102,13 +102,13 @@
                     <!-- Post Header -->
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-3">
-                            <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
-                                <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                                    <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                        <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-300">{{ $post->user ? $post->user->initials() : '?' }}</span>
-                                    </div>
+                            @if($post->user)
+                                <x-user-avatar :user="$post->user" size="md" />
+                            @else
+                                <div class="h-10 w-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                                    <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-300">?</span>
                                 </div>
-                            </div>
+                            @endif
                             <div>
                                 <h2 class="font-semibold text-zinc-900 dark:text-white">{{ $post->user ? ($post->user->username ?? $post->user->name) : 'Unknown User' }}</h2>
                                 <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>

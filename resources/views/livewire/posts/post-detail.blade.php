@@ -59,13 +59,7 @@
                 <!-- Post Header -->
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-3">
-                        <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
-                            <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                                <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                    <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-300">{{ $post->user->initials() }}</span>
-                                </div>
-                            </div>
-                        </div>
+                        <x-user-avatar :user="$post->user" size="md" />
                         <div>
                             <a href="{{ route('profile.show', $post->user->username) }}" wire:navigate class="font-semibold text-zinc-900 dark:text-white hover:underline">{{ $post->user->username ?? $post->user->name }}</a>
                             <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>
@@ -166,13 +160,7 @@
 
                 <!-- Comment Input Area -->
                 <div class="flex items-center space-x-3">
-                    <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5 flex-shrink-0">
-                        <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                            <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <x-user-avatar :user="auth()->user()" size="sm" />
                     <div class="flex-1">
                         <input
                             type="text"
@@ -200,13 +188,7 @@
                     @if($showComments && $comments->count() > 0)
                         @foreach($comments as $comment)
                             <div class="flex space-x-3">
-                                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5 flex-shrink-0">
-                                    <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                                        <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                            <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ $comment->user->initials() }}</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <x-user-avatar :user="$comment->user" size="sm" />
                                 <div class="flex-1">
                                     <div class="bg-zinc-100 dark:bg-zinc-700 rounded-2xl px-4 py-3">
                                         <p class="text-sm font-semibold text-zinc-900 dark:text-white mb-1">{{ $comment->user->username ?? $comment->user->name }}</p>

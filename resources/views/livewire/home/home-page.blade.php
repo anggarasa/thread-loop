@@ -33,13 +33,7 @@
                         <!-- Post Header -->
                         <div class="flex items-center justify-between p-4">
                             <div class="flex items-center space-x-3">
-                                <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
-                                    <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                                        <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                            <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-300">{{ $post->user->initials() }}</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <x-user-avatar :user="$post->user" size="md" />
                                 <div>
                                     <a href="{{ route('profile.show', $post->user->username) }}" wire:navigate class="font-semibold text-zinc-900 dark:text-white hover:underline">{{ $post->user->username ?? $post->user->name }}</a>
                                     <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $post->created_at->diffForHumans() }}</p>
@@ -203,9 +197,7 @@
                                     @if(isset($comments[$post->id]))
                                         @foreach($comments[$post->id] as $comment)
                                             <div class="flex items-start space-x-3">
-                                                <div class="h-6 w-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center flex-shrink-0">
-                                                    <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ substr($comment->user->name, 0, 1) }}</span>
-                                                </div>
+                                                <x-user-avatar :user="$comment->user" size="xs" />
                                                 <div class="flex-1">
                                                     <div class="text-sm">
                                                         <span class="font-semibold text-zinc-900 dark:text-white">{{ $comment->user->username ?? $comment->user->name }}</span>
@@ -223,9 +215,7 @@
 
                             <!-- Add Comment -->
                             <div class="mt-3 flex items-center space-x-3">
-                                <div class="h-8 w-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                    <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                                </div>
+                                <x-user-avatar :user="auth()->user()" size="sm" />
                                 <div class="flex-1">
                                     <input
                                         type="text"
@@ -295,21 +285,6 @@
         <div class="hidden lg:block lg:col-span-1">
             <div class="top-6">
                 <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6">
-                    <!-- User Profile Summary -->
-                    <div class="flex items-center space-x-3 mb-6">
-                        <div class="h-12 w-12 rounded-full bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 p-0.5">
-                            <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                                <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                    <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-300">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-zinc-900 dark:text-white">{{ auth()->user()->name }}</h3>
-                            <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ auth()->user()->email }}</p>
-                        </div>
-                    </div>
-
                     <!-- Suggestions for You -->
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-4">
@@ -321,13 +296,7 @@
                             @forelse($suggestedUsers as $user)
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 p-0.5">
-                                        <div class="h-full w-full rounded-full bg-white dark:bg-zinc-800 p-0.5">
-                                            <div class="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                                <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{{ $user->initials() }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <x-user-avatar :user="$user" size="sm" />
                                     <div>
                                         <a href="{{ route('profile.show', $user->username) }}" wire:navigate class="text-sm font-semibold text-zinc-900 dark:text-white hover:underline">{{ Str::limit($user->username, 16, '...') ?? Str::limit($user->name, 16, '...') }}</a>
                                         <p class="text-xs text-zinc-500 dark:text-zinc-400">Suggested for you</p>

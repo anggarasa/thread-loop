@@ -74,8 +74,8 @@
                         <button @click="userMenuOpen = !userMenuOpen"
                                 class="flex items-center w-full px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700 rounded-xl transition-all duration-200">
                             <div class="flex items-center flex-1">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mr-3">
-                                    <span class="text-white text-sm font-semibold">{{ auth()->user()->initials() }}</span>
+                                <div class="mr-3">
+                                    <x-user-avatar :user="auth()->user()" size="sm" />
                                 </div>
                                 <div class="flex-1 text-left">
                                     <div class="text-sm font-medium text-zinc-900 dark:text-zinc-100">{{ auth()->user()->name }}</div>
