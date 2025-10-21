@@ -4,6 +4,7 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShareController;
+use App\Http\Controllers\SitemapController;
 use App\Livewire\Home\HomePage;
 use App\Livewire\Posts\PostDetail;
 use App\Livewire\Profile\UserProfile;
@@ -25,6 +26,9 @@ Route::middleware('prevent.authenticated')->group(function () {
 });
 
 Route::get('/profile/{username}', UserProfile::class)->name('profile.show');
+
+// SEO: Sitemap
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Public share route - accessible without authentication
 Route::get('/share/{post}', [ShareController::class, 'show'])->name('posts.share');

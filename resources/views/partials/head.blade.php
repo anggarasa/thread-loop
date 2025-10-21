@@ -4,6 +4,20 @@
 
 <title>{{ $title ?? config('app.name') }}</title>
 
+<x-seo
+    :title="$title ?? null"
+    :description="$metaDescription ?? null"
+    :image="$metaImage ?? null"
+    :type="$metaType ?? null"
+    :noindex="$noindex ?? false"
+    :canonical="$canonical ?? null"
+    :url="$metaUrl ?? null"
+    :published-time="$publishedTime ?? null"
+    :modified-time="$modifiedTime ?? null"
+    :author-name="$authorName ?? null"
+>
+</x-seo>
+
 <link rel="icon" href="/assets/images/logo-ThreadLoop2-aplikasi.svg" sizes="any">
 <link rel="icon" href="/assets/images/logo-ThreadLoop2-aplikasi.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/images/logo-ThreadLoop2-aplikasi.svg">
