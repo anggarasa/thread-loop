@@ -159,25 +159,27 @@
                 </div>
 
                 <!-- Comment Input Area -->
-                <div class="flex items-center space-x-3">
-                    <x-user-avatar :user="auth()->user()" size="sm" />
-                    <div class="flex-1">
-                        <input
-                            type="text"
-                            wire:model="newComment"
-                            wire:keydown.enter="addComment"
-                            placeholder="Input Comment"
-                            class="w-full px-4 py-2 bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400 rounded-full border border-zinc-200 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
+                <div class="p-4 bg-zinc-50 dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 dark:border-zinc-600">
+                    <div class="flex items-center space-x-3">
+                        <x-user-avatar :user="auth()->user()" size="sm" />
+                        <div class="flex-1">
+                            <input
+                                type="text"
+                                wire:model="newComment"
+                                wire:keydown.enter="addComment"
+                                placeholder="Add a comment..."
+                                class="w-full px-4 py-2.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400 rounded-full border border-zinc-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            >
+                        </div>
+                        @if($newComment)
+                            <button
+                                wire:click="addComment"
+                                class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-semibold transition-colors shadow-sm hover:shadow-md"
+                            >
+                                Send
+                            </button>
+                        @endif
                     </div>
-                    @if($newComment)
-                        <button
-                            wire:click="addComment"
-                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-semibold transition-colors"
-                        >
-                            Send
-                        </button>
-                    @endif
                 </div>
 
                 <!-- Separator Line -->

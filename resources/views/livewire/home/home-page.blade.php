@@ -214,24 +214,26 @@
                             @endif
 
                             <!-- Add Comment -->
-                            <div class="mt-3 flex items-center space-x-3">
-                                <x-user-avatar :user="auth()->user()" size="sm" />
-                                <div class="flex-1">
-                                    <input
-                                        type="text"
-                                        wire:model="newComments.{{ $post->id }}"
-                                        wire:keydown.enter="addComment({{ $post->id }})"
-                                        placeholder="Add a comment..."
-                                        class="w-full bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400 focus:outline-none"
+                            <div class="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+                                <div class="flex items-center space-x-3 p-3 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg border border-zinc-200 dark:border-zinc-600">
+                                    <x-user-avatar :user="auth()->user()" size="sm" />
+                                    <div class="flex-1">
+                                        <input
+                                            type="text"
+                                            wire:model="newComments.{{ $post->id }}"
+                                            wire:keydown.enter="addComment({{ $post->id }})"
+                                            placeholder="Add a comment..."
+                                            class="w-full bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400 focus:outline-none"
+                                        >
+                                    </div>
+                                    <button
+                                        wire:click="addComment({{ $post->id }})"
+                                        class="text-sm font-semibold text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                                        type="button"
                                     >
+                                        Post
+                                    </button>
                                 </div>
-                                <button
-                                    wire:click="addComment({{ $post->id }})"
-                                    class="text-sm font-semibold text-blue-500 hover:text-blue-600"
-                                    type="button"
-                                >
-                                    Post
-                                </button>
                             </div>
                         </div>
                     </div>
