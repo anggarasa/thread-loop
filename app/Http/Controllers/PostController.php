@@ -54,7 +54,7 @@ class PostController extends Controller
 
             $postData = [
                 'user_id' => $userId,
-                'content' => $request->content,
+                'content' => $request->input('content'),
                 'likes_count' => 0,
                 'comments_count' => 0,
             ];

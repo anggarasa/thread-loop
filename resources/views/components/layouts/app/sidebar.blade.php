@@ -116,22 +116,48 @@
                                     {{ __('Settings') }}
                                 </a>
                                 <div class="border-t border-zinc-200 dark:border-zinc-700"></div>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit"
+                                <flux:modal.trigger name="confirm-logout-sidebar">
+                                    <button type="button"
+                                            @click="userMenuOpen = false"
                                             class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
                                         <svg class="mr-3 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                         </svg>
                                         {{ __('Log Out') }}
                                     </button>
-                                </form>
+                                </flux:modal.trigger>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Confirm Logout Modal (Sidebar Layout) -->
+        <flux:modal name="confirm-logout-sidebar" class="min-w-[18rem] sm:min-w-[22rem]" :closable="false" :dismissible="false">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Logout?</flux:heading>
+                    <flux:text class="mt-2">
+                        <p>You're about to log out of your account.</p>
+                        <p>You will need to log in again to continue.</p>
+                    </flux:text>
+                </div>
+
+                <div class="flex gap-2">
+                    <flux:spacer />
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cancel</flux:button>
+                    </flux:modal.close>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </flux:modal>
 
         <!-- Main Content -->
         <div class="lg:ml-64">
