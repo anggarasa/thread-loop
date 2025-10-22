@@ -2,8 +2,8 @@
     <div class="min-h-screen bg-white dark:bg-zinc-900">
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-700 overflow-hidden"></div>
-    <!-- Header -->
+            <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-700 overflow-hidden">
+                <!-- Header -->
                 <div class="px-6 py-6 border-b border-gray-100 dark:border-zinc-700">
                     <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Create New Post</h1>
                     <p class="text-gray-600 dark:text-zinc-400 mt-1">Share your thoughts with the community</p>
@@ -122,27 +122,42 @@
                     </button>
                 </div>
             </form>
-        </div>
+            </div>
         </main>
-                    </div>
+    </div>
 
     <!-- Success Snackbar -->
-    <div id="success-snackbar" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-y-full">
-        <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div id="success-snackbar" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 -translate-y-full max-w-md">
+        <div class="flex items-start space-x-3">
+            <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
-            <span id="success-message">Post created successfully!</span>
-                    </div>
-                </div>
+            <div id="success-message" class="flex-1 text-sm leading-relaxed">Post created successfully!</div>
+        </div>
+    </div>
+
+    <style>
+        /* Success message link styles */
+        #success-message a {
+            color: white;
+            text-decoration: underline;
+            font-weight: 600;
+            text-underline-offset: 2px;
+            transition: all 0.2s ease;
+        }
+        #success-message a:hover {
+            color: #d1fae5;
+            text-decoration-thickness: 2px;
+        }
+    </style>
 
     <!-- Error Snackbar -->
-    <div id="error-snackbar" class="hidden fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-y-full">
-        <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div id="error-snackbar" class="hidden fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 -translate-y-full max-w-md">
+        <div class="flex items-start space-x-3">
+            <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
-            <span id="error-message">Failed to create post. Please try again.</span>
+            <div id="error-message" class="flex-1 text-sm leading-relaxed">Failed to create post. Please try again.</div>
         </div>
     </div>
 
@@ -274,11 +289,12 @@
             previewVideo.classList.remove('portrait-preview', 'landscape-preview', 'square-preview');
         }
 
-        // Regular Form submission with client-side validation
+        // AJAX Form submission with client-side validation
         document.getElementById('create-post-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+
             const content = textarea.value.trim();
             if (!content) {
-                e.preventDefault();
                 textarea.focus();
                 textarea.classList.add('border-red-500', 'dark:border-red-400');
                 showError('Please enter some content for your post.');
@@ -288,16 +304,93 @@
             // Validate media upload
             const fileInput = document.getElementById('media');
             if (!fileInput.files || fileInput.files.length === 0) {
-                e.preventDefault();
                 fileInput.focus();
                 showError('Please select a media file to upload.');
                 return;
             }
 
-            // Show loading overlay for better UX
+            // Show loading overlay
             showLoadingOverlay();
+            disableForm();
 
-            // Let the form submit normally - no preventDefault()
+            // Create FormData manually for better control
+            const formData = new FormData();
+
+            // Add CSRF token
+            const csrfInput = document.querySelector('input[name="_token"]');
+            if (csrfInput) {
+                formData.append('_token', csrfInput.value);
+            }
+
+            // Add content
+            formData.append('content', content);
+
+            // Add media file
+            const mediaFile = fileInput.files[0];
+            formData.append('media', mediaFile);
+
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Send AJAX request
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                // Check if response is ok
+                if (!response.ok) {
+                    // Handle specific status codes
+                    if (response.status === 419) {
+                        throw new Error('CSRF token mismatch. Please refresh the page and try again.');
+                    } else if (response.status === 422) {
+                        return response.json().then(data => {
+                            // Get detailed validation errors
+                            let errorMessage = 'Validation error: ';
+                            if (data.errors) {
+                                const errors = Object.values(data.errors).flat();
+                                errorMessage = errors.join(' ');
+                            } else if (data.message) {
+                                errorMessage = data.message;
+                            }
+                            throw new Error(errorMessage);
+                        });
+                    } else if (response.status === 429) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Too many requests. Please wait a moment.');
+                        });
+                    } else {
+                        throw new Error('Server error. Please try again.');
+                    }
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideLoadingOverlay();
+                enableForm();
+
+                if (data.success) {
+                    showSuccess(data.message);
+
+                    // Redirect after showing success message (user has time to click View Post link)
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 5500);
+                } else {
+                    showError(data.message || 'Failed to create post. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                hideLoadingOverlay();
+                enableForm();
+                showError(error.message || 'An error occurred. Please try again.');
+            });
         });
 
         // Loading overlay functions
@@ -381,22 +474,23 @@
             const snackbar = document.getElementById('success-snackbar');
             const messageEl = document.getElementById('success-message');
 
-            messageEl.textContent = message;
-            snackbar.classList.remove('hidden', 'translate-y-full');
+            // Use innerHTML to render HTML links
+            messageEl.innerHTML = message;
+            snackbar.classList.remove('hidden', '-translate-y-full');
             snackbar.classList.add('translate-y-0');
 
-            // Auto hide after 3 seconds
+            // Auto hide after 5 seconds (more time to read/click link)
             setTimeout(() => {
                 hideSnackbar(snackbar);
-            }, 3000);
+            }, 5000);
         }
 
         function showError(message) {
             const snackbar = document.getElementById('error-snackbar');
             const messageEl = document.getElementById('error-message');
 
-            messageEl.textContent = message;
-            snackbar.classList.remove('hidden', 'translate-y-full');
+            messageEl.innerHTML = message;
+            snackbar.classList.remove('hidden', '-translate-y-full');
             snackbar.classList.add('translate-y-0');
 
             // Auto hide after 5 seconds
@@ -407,7 +501,7 @@
 
         function hideSnackbar(snackbar) {
             snackbar.classList.remove('translate-y-0');
-            snackbar.classList.add('translate-y-full');
+            snackbar.classList.add('-translate-y-full');
 
             setTimeout(() => {
                 snackbar.classList.add('hidden');

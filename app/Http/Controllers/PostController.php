@@ -120,7 +120,7 @@ class PostController extends Controller
 
             // Create success message with View Post link
             $viewPostUrl = route('posts.show', $post);
-            $successMessage = 'Post created successfully! <a href="' . $viewPostUrl . '" class="underline font-semibold hover:text-green-800 dark:hover:text-green-200 transition-colors">View Post</a>';
+            $successMessage = 'Post created successfully! <a href="' . $viewPostUrl . '">View Post</a>';
 
             // Check if this is an AJAX request
             if ($request->ajax()) {
