@@ -1,85 +1,79 @@
 #!/bin/sh
 set -e
 
-echo "🚀 Starting ThreadLoop application..."
+echo "============================================="
+echo "Starting application setup..."
+echo "============================================="
+
+# Print environment info for debugging
+echo "PHP Version: $(php -v | head -n 1)"
+echo "Node Version: $(node -v 2>/dev/null || echo 'Not installed')"
+echo "Working directory: $(pwd)"
 
 # Create storage directories if they don't exist
-mkdir -p /var/www/html/storage/logs
-mkdir -p /var/www/html/storage/framework/cache
+echo "Creating storage directories..."
+mkdir -p /var/www/html/storage/app/public
+mkdir -p /var/www/html/storage/framework/cache/data
 mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/framework/views
-mkdir -p /var/log/supervisor
+mkdir -p /var/www/html/storage/logs
+mkdir -p /var/www/html/bootstrap/cache
 
 # Set proper permissions
+echo "Setting permissions..."
 chown -R www-data:www-data /var/www/html/storage
 chown -R www-data:www-data /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage
 chmod -R 775 /var/www/html/bootstrap/cache
 
-# Wait for database to be ready (if using MySQL)
-if [ -n "$DB_HOST" ]; then
-    echo "⏳ Waiting for database connection..."
-    echo "📋 Database config: HOST=$DB_HOST, PORT=${DB_PORT:-3306}, USER=$DB_USERNAME, DB=$DB_DATABASE"
-
-    max_tries=60
-    counter=0
-
-    # Use PHP to test database connection (more reliable than mysql client)
-    until php -r "
-        \$host = getenv('DB_HOST');
-        \$port = getenv('DB_PORT') ?: '3306';
-        \$user = getenv('DB_USERNAME');
-        \$pass = getenv('DB_PASSWORD');
-        \$db = getenv('DB_DATABASE');
-
-        try {
-            \$pdo = new PDO(\"mysql:host=\$host;port=\$port;dbname=\$db\", \$user, \$pass, [
-                PDO::ATTR_TIMEOUT => 5,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-            ]);
-            echo 'Connected successfully';
-            exit(0);
-        } catch (PDOException \$e) {
-            echo 'Connection failed: ' . \$e->getMessage();
-            exit(1);
-        }
-    " 2>&1; do
-        counter=$((counter + 1))
-        if [ $counter -ge $max_tries ]; then
-            echo "❌ Could not connect to database after $max_tries attempts"
-            echo "🔍 Debug: Trying to resolve hostname..."
-            getent hosts "$DB_HOST" || echo "Could not resolve hostname $DB_HOST"
-            echo "🔍 Debug: Trying to ping..."
-            ping -c 1 "$DB_HOST" 2>&1 || echo "Could not ping $DB_HOST"
-            exit 1
-        fi
-        echo "Waiting for database... (attempt $counter/$max_tries)"
-        sleep 3
-    done
-    echo "✅ Database is ready!"
-fi
-
-# Generate application key if not set
-if [ -z "$APP_KEY" ]; then
-    echo "⚠️  APP_KEY not set, generating new key..."
-    php artisan key:generate --force
-fi
-
-# Clear and cache configuration (production optimization)
-echo "📦 Optimizing application..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# Run migrations
-echo "🗄️  Running database migrations..."
-php artisan migrate --force
-
-# Create storage link
+# Create storage symlink
+echo "Creating storage symlink..."
 php artisan storage:link --force 2>/dev/null || true
 
-echo "✅ Application is ready!"
-echo "🌐 Starting Supervisor..."
+# Test database connection
+echo "Testing database connection..."
+php artisan db:show 2>&1 || echo "Warning: Database connection test failed"
 
-# Start Supervisor to manage all processes
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+# Run migrations if database is available
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+    echo "Running database migrations..."
+    php artisan migrate --force 2>&1 || echo "Migration skipped or failed"
+fi
+
+# Clear old cache first (important for production)
+echo "Clearing old cache..."
+php artisan config:clear 2>&1 || true
+php artisan route:clear 2>&1 || true
+php artisan view:clear 2>&1 || true
+
+# Cache configuration (now environment variables are available)
+echo "Caching Laravel configuration..."
+php artisan config:cache 2>&1 || echo "Warning: config:cache failed"
+php artisan route:cache 2>&1 || echo "Warning: route:cache failed"
+php artisan view:cache 2>&1 || echo "Warning: view:cache failed"
+
+# Verify critical files exist
+echo "Verifying critical files..."
+if [ ! -f /var/www/html/public/index.php ]; then
+    echo "ERROR: public/index.php not found!"
+    exit 1
+fi
+
+if [ ! -d /var/www/html/vendor ]; then
+    echo "ERROR: vendor directory not found!"
+    exit 1
+fi
+
+# Check if SSR build exists
+if [ -f /var/www/html/bootstrap/ssr/ssr.js ]; then
+    echo "SSR build found at /var/www/html/bootstrap/ssr/ssr.js"
+else
+    echo "Warning: SSR build not found, SSR will not work"
+fi
+
+echo "============================================="
+echo "Application setup complete. Starting services..."
+echo "============================================="
+
+# Execute the main command (supervisord)
+exec "$@"
