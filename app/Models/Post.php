@@ -38,7 +38,7 @@ class Post extends Model
     /**
      * Scope for efficient feed loading with weighted scoring
      */
-    public function scopeForFeed($query, $days = 30)
+    public function scopeForFeed($query, $days = 3650)
     {
         return $query->where('created_at', '>', now()->subDays($days))
             ->orderByRaw('(likes_count * 0.7 + comments_count * 0.3) DESC')

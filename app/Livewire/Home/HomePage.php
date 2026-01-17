@@ -314,7 +314,6 @@ class HomePage extends Component
     {
         // Optimize: Use more efficient user suggestions
         $suggestedUsers = User::where('id', '!=', auth()->id())
-            ->where('created_at', '>', now()->subDays(90)) // Recent users
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();

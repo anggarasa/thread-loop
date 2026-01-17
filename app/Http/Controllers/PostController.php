@@ -74,7 +74,7 @@ class PostController extends Controller
 
             // Upload to Cloudinary with error handling
             try {
-                $uploadResult = Cloudinary::uploadApi()->upload($file->getRealPath(), [
+                $uploadedFile = Cloudinary::uploadApi()->upload($file->getRealPath(), [
                     'folder' => 'thread-loop/posts',
                     'resource_type' => $postData['media_type'],
                     'transformation' => [
@@ -83,8 +83,8 @@ class PostController extends Controller
                     ]
                 ]);
 
-                $postData['media_path'] = $uploadResult['public_id'];
-                $postData['media_url'] = $uploadResult['secure_url'];
+                $postData['media_path'] = $uploadedFile['public_id'];
+                $postData['media_url'] = $uploadedFile['secure_url'];
             } catch (Exception $e) {
                 Log::error('Cloudinary upload failed:', [
                     'user_id' => $userId,
