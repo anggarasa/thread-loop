@@ -1,4 +1,15 @@
-# Stage 1: Build frontend assets
+# Stage 1: Install Composer dependencies first (needed for Flux CSS)
+FROM composer:latest AS composer-builder
+
+WORKDIR /app
+
+# Copy composer files
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies (this creates vendor folder with flux.css)
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+
+# Stage 2: Build frontend assets (needs vendor/livewire/flux for CSS)
 FROM node:20-alpine AS node-builder
 
 WORKDIR /app
@@ -9,6 +20,9 @@ COPY package.json package-lock.json ./
 # Install dependencies
 RUN npm ci
 
+# Copy vendor folder from composer stage (needed for flux.css import)
+COPY --from=composer-builder /app/vendor vendor/
+
 # Copy source files for Vite build
 COPY resources/ resources/
 COPY vite.config.js ./
@@ -17,7 +31,7 @@ COPY public/ public/
 # Build assets
 RUN npm run build
 
-# Stage 2: PHP/Laravel application
+# Stage 3: PHP/Laravel application
 FROM php:8.2-fpm-alpine AS php-base
 
 # Install system dependencies
