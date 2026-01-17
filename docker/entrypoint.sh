@@ -19,16 +19,42 @@ chmod -R 775 /var/www/html/bootstrap/cache
 # Wait for database to be ready (if using MySQL)
 if [ -n "$DB_HOST" ]; then
     echo "⏳ Waiting for database connection..."
-    max_tries=30
+    echo "📋 Database config: HOST=$DB_HOST, PORT=${DB_PORT:-3306}, USER=$DB_USERNAME, DB=$DB_DATABASE"
+
+    max_tries=60
     counter=0
-    until mysql -h"$DB_HOST" -P"${DB_PORT:-3306}" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT 1" > /dev/null 2>&1; do
+
+    # Use PHP to test database connection (more reliable than mysql client)
+    until php -r "
+        \$host = getenv('DB_HOST');
+        \$port = getenv('DB_PORT') ?: '3306';
+        \$user = getenv('DB_USERNAME');
+        \$pass = getenv('DB_PASSWORD');
+        \$db = getenv('DB_DATABASE');
+
+        try {
+            \$pdo = new PDO(\"mysql:host=\$host;port=\$port;dbname=\$db\", \$user, \$pass, [
+                PDO::ATTR_TIMEOUT => 5,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+            echo 'Connected successfully';
+            exit(0);
+        } catch (PDOException \$e) {
+            echo 'Connection failed: ' . \$e->getMessage();
+            exit(1);
+        }
+    " 2>&1; do
         counter=$((counter + 1))
         if [ $counter -ge $max_tries ]; then
             echo "❌ Could not connect to database after $max_tries attempts"
+            echo "🔍 Debug: Trying to resolve hostname..."
+            getent hosts "$DB_HOST" || echo "Could not resolve hostname $DB_HOST"
+            echo "🔍 Debug: Trying to ping..."
+            ping -c 1 "$DB_HOST" 2>&1 || echo "Could not ping $DB_HOST"
             exit 1
         fi
         echo "Waiting for database... (attempt $counter/$max_tries)"
-        sleep 2
+        sleep 3
     done
     echo "✅ Database is ready!"
 fi
