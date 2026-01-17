@@ -52,13 +52,6 @@ php artisan config:cache 2>&1 || echo "Warning: config:cache failed"
 php artisan route:cache 2>&1 || echo "Warning: route:cache failed"
 php artisan view:cache 2>&1 || echo "Warning: view:cache failed"
 
-# Verify critical files exist
-echo "Verifying critical files..."
-if [ ! -f /var/www/html/public/index.php ]; then
-    echo "ERROR: public/index.php not found!"
-    exit 1
-fi
-
 if [ ! -d /var/www/html/vendor ]; then
     echo "ERROR: vendor directory not found!"
     exit 1
