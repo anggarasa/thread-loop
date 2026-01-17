@@ -64,13 +64,6 @@ if [ ! -d /var/www/html/vendor ]; then
     exit 1
 fi
 
-# Check if SSR build exists
-if [ -f /var/www/html/bootstrap/ssr/ssr.js ]; then
-    echo "SSR build found at /var/www/html/bootstrap/ssr/ssr.js"
-else
-    echo "Warning: SSR build not found, SSR will not work"
-fi
-
 echo "============================================="
 echo "Application setup complete. Starting services..."
 echo "============================================="
