@@ -222,7 +222,7 @@ class HomePage extends Component
 
         // Optimize: Use scope for efficient feed loading with better performance
         $newPosts = Post::with(['user'])
-            ->forFeed(30) // Use the new scope
+            ->forFeed() // Use the new scope
             ->skip(($this->page - 1) * 15) // Load more posts per batch for better UX
             ->limit(15)
             ->get();
