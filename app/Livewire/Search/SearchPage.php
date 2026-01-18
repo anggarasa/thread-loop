@@ -567,19 +567,18 @@ class SearchPage extends Component
 
     private function refreshPostInCollection($postId)
     {
-        // Find and refresh the post in the posts collection
-        $postsArray = collect($this->posts)->toArray();
-        foreach ($postsArray as $index => $post) {
-            if ($post->id == $postId) {
+        // Find and replace the specific post in the collection preserving objects
+        $this->posts = collect($this->posts)->map(function ($post) use ($postId) {
+            // Check ID on either object or array to be safe, though expecting object
+            $currentId = is_array($post) ? $post['id'] : $post->id;
+
+            if ($currentId == $postId) {
                 // Get fresh data from database
-                $freshPost = Post::with('user')->find($postId);
-                if ($freshPost) {
-                    $postsArray[$index] = $freshPost;
-                    $this->posts = collect($postsArray);
-                }
-                break;
+                return Post::with('user')->find($postId) ?? $post;
             }
-        }
+
+            return $post;
+        });
     }
 
     public function isLiked($postId)
